@@ -52,7 +52,9 @@ const [stdin, userId] = await Promise.all([readStdin(), Promise.resolve(getUserI
 const bones = roll(userId);
 const color = RARITY_ANSI[bones.rarity];
 
-// Col 1: species/rarity on row 0, then sprite
+// Col 1: species/rarity + sprite
+// No hat: if sprite first line is blank, species replaces it = same row count
+// Has hat: species on top = +1 row
 const shinyMark = bones.shiny ? ' \u2728' : '';
 const speciesLine = `${color}${RARITY_STARS[bones.rarity]}  ${BOLD}${bones.species.toUpperCase()}${RESET}${shinyMark}`;
 const sprite = renderSprite(bones, 0);
@@ -60,10 +62,27 @@ const SPRITE_WIDTH = 12;
 const speciesVisible = stripAnsi(speciesLine).length;
 const COL1_WIDTH = Math.max(SPRITE_WIDTH, speciesVisible);
 const spritePad = ' '.repeat(COL1_WIDTH - SPRITE_WIDTH);
-const col1 = [
-  padEnd(speciesLine, COL1_WIDTH),
-  ...sprite.map(line => color + line + RESET + spritePad),
-];
+
+let col1;
+if (bones.hat === 'none' && sprite[0] && !sprite[0].trim()) {
+  // No hat, first line blank: species replaces blank line
+  col1 = [
+    padEnd(speciesLine, COL1_WIDTH),
+    ...sprite.slice(1).map(line => color + line + RESET + spritePad),
+  ];
+} else if (bones.hat === 'none') {
+  // No hat, no blank line (already shifted): species on top
+  col1 = [
+    padEnd(speciesLine, COL1_WIDTH),
+    ...sprite.map(line => color + line + RESET + spritePad),
+  ];
+} else {
+  // Has hat: species on top, then full sprite
+  col1 = [
+    padEnd(speciesLine, COL1_WIDTH),
+    ...sprite.map(line => color + line + RESET + spritePad),
+  ];
+}
 const totalRows = col1.length;
 
 // Col 2: 5 stats, bottom-align
