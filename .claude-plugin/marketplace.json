@@ -1,0 +1,15 @@
+{
+  "name": "cc-companion",
+  "owner": { "name": "zigizhujian" },
+  "metadata": {
+    "description": "CC Companion — your coding buddy pet for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "cc-companion",
+      "source": ".",
+      "description": "Show your unique companion pet, customize it, or embed it in your statusline"
+    }
+  ]
+}

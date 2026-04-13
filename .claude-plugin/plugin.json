@@ -1,0 +1,19 @@
+{
+  "name": "cc-companion",
+  "description": "Your coding buddy pet for Claude Code — view, customize, or embed in your statusline",
+  "version": "1.0.0",
+  "author": {
+    "name": "zigizhujian",
+    "url": "https://github.com/zigizhujian"
+  },
+  "homepage": "https://github.com/zigizhujian/cc-companion",
+  "repository": "https://github.com/zigizhujian/cc-companion",
+  "license": "MIT",
+  "keywords": ["companion", "pet", "buddy", "ascii-art", "statusline"],
+  "commands": [
+    "./commands/companion.md",
+    "./commands/companion-customize.md",
+    "./commands/companion-statusline.md",
+    "./commands/companion-hud.md"
+  ]
+}
