@@ -1,31 +1,52 @@
 # CC Companion
 
-Your coding buddy pet for Claude Code. Each user gets a unique deterministic companion based on their account — view it, customize it, or embed it in your statusline.
+Your coding buddy pet for Claude Code. Each user gets a unique deterministic companion based on their account — view it, customize it, and display it in your statusline.
 
-## Features
-
-- `/companion` — Show your unique companion pet with ASCII art, stats, and rarity
-- `/companion:customize` — Choose your own species, rarity, eyes, hat, and stats
-- `/companion:statusline` — Set your companion as the CC statusline
-- `/companion:hud` — Embed your companion into claude-hud
+```
+★★★★★  DRAGON ✨
+   \^^^/      DEBUGGING ██████████ 100
+  /^\  /^\    PATIENCE  ███████░░░  69    opus
+ <  ✦  ✦  >   CHAOS     █████████░  86    CC v2.1.104
+ (   ~~   )   WISDOM    ██████████ 100    ctx  ████░░░░░░  40%
+  `-vvvv-´    SNARK     ████░░░░░░  41    cost: $38.70
+```
 
 ## Installation
 
-```bash
+```
 /plugin marketplace add zigizhujian/cc-companion
 /plugin install cc-companion
 ```
 
-**Requires [Bun](https://bun.sh)** (usually already installed with Claude Code).
+**Requires [Bun](https://bun.sh)** — needed for `Bun.hash` (wyhash) to match Claude Code's companion algorithm.
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/cc-companion:companion` | Show your companion pet (ASCII art, stats, rarity) |
+| `/cc-companion:companion-customize` | Choose your own species, rarity, eyes, hat, and stats |
+| `/cc-companion:companion-statusline` | Toggle companion statusline on/off |
+
+## Statusline
+
+The companion statusline replaces your default statusline (or claude-hud) with a 3-column display:
+
+- **Column 1**: Species name + ASCII sprite
+- **Column 2**: 5 stats with colored bars (cyan = high, yellow = mid, red = low)
+- **Column 3**: Model, CC version, context usage bar, session cost
+
+Run `/cc-companion:companion-statusline` to toggle it on or off.
 
 ## Species
 
 18 unique species, each with 3-frame idle animation:
 
 ```
-duck      goose     blob      cat       dragon    octopus
-owl       penguin   turtle    snail     ghost     axolotl
-capybara  cactus    robot     rabbit    mushroom  chonk
+ 1. duck       5. dragon     9. turtle    13. capybara  17. mushroom
+ 2. goose      6. octopus   10. snail     14. cactus    18. chonk
+ 3. blob       7. owl       11. ghost     15. robot
+ 4. cat        8. penguin   12. axolotl   16. rabbit
 ```
 
 ## Rarity
@@ -37,6 +58,12 @@ capybara  cactus    robot     rabbit    mushroom  chonk
 | Rare      | ★★★   | 10%    | Yes  |
 | Epic      | ★★★★  | 4%     | Yes  |
 | Legendary | ★★★★★ | 1%     | Yes  |
+
+**Shiny**: 1% chance per roll. Marked with ✨ in the statusline.
+
+## Hats
+
+Available for uncommon and above: crown, tophat, propeller, halo, wizard, beanie, tinyduck.
 
 ## Stats
 
@@ -50,16 +77,31 @@ Every companion has 5 stats (one peak, one dump):
 
 ## Customization
 
-`/companion:customize` lets you pick exactly what you want. It brute-force searches for a salt that produces your desired traits, then patches the Claude Code binary. Usually takes under a second.
+`/cc-companion:companion-customize` walks you through choosing:
 
-To restore your original companion:
+1. Species (18 options)
+2. Rarity (common → legendary)
+3. Eyes (6 styles: · ✦ × ◉ @ °)
+4. Hat (7 options, uncommon+ only)
+5. Shiny (yes/no)
+
+The plugin brute-force searches for a salt that produces your desired traits using `Bun.hash`. Usually takes under 2 seconds, even for shiny legendary pets.
+
+Your custom salt is saved to `~/.cc-companion.json`. The statusline reads it automatically — no restart needed.
+
+To restore your original (default) companion:
+
 ```bash
-/companion:customize restore
+~/.bun/bin/bun ~/.claude/plugins/cache/cc-companion/cc-companion/*/scripts/customize-auto.mjs restore
 ```
 
 ## How It Works
 
-Claude Code generates companions deterministically: `hash(userId + salt)` feeds a seeded PRNG that picks species, rarity, eyes, hat, and stats. This plugin uses the same algorithm (Bun.hash / wyhash + Mulberry32 PRNG) to show your pet — and optionally finds a different salt to get the companion you want.
+Claude Code generates companions deterministically: `Bun.hash(userId + salt)` feeds a Mulberry32 seeded PRNG that picks species, rarity, eyes, hat, and stats. This plugin uses the exact same algorithm to display your pet.
+
+Customization works by finding an alternative salt (same length, 15 characters) that produces your desired traits when combined with your userId. The salt is stored locally — no binary patching required.
+
+**Note**: The plugin also includes binary patching code (`patcher.mjs`) for when Anthropic re-enables the official `/buddy` UI. Currently unused since the official buddy feature is not active.
 
 ## License
 
