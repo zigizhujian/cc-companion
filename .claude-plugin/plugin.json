@@ -1,7 +1,7 @@
 {
   "name": "cc-companion",
   "description": "Your coding buddy pet for Claude Code — view, customize, or embed in your statusline",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "zigizhujian",
     "url": "https://github.com/zigizhujian"
