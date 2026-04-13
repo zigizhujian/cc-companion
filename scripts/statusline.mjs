@@ -86,13 +86,13 @@ if (bones.hat === 'none' && sprite[0] && !sprite[0].trim()) {
 const totalRows = col1.length;
 
 // Col 2: 5 stats, bottom-align
-const COL2_WIDTH = 26;
+const COL2_WIDTH = 27;
 function statLine(name) {
   const v = bones.stats[name];
   const filled = Math.round(v / 10);
   const statColor = v >= 70 ? '\x1b[36m' : v >= 40 ? '\x1b[38;5;186m' : '\x1b[38;5;174m';
   const bar = statColor + '\u2588'.repeat(filled) + DIM + '\u2591'.repeat(10 - filled) + RESET;
-  return `${DIM}${name.padEnd(9)}${RESET}${bar} ${statColor}${String(v).padStart(3)}${RESET}`;
+  return `${DIM}${name.padEnd(10)}${RESET}${bar} ${statColor}${String(v).padStart(3)}${RESET}`;
 }
 let col2 = STAT_NAMES.map(statLine);
 while (col2.length < totalRows) col2.unshift(' '.repeat(COL2_WIDTH));
