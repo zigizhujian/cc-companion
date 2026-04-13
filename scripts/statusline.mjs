@@ -3,7 +3,9 @@
 // CC Companion Statusline — 3-column layout: species+sprite | stats | info
 
 import { roll, renderSprite, getUserId, RARITY_STARS, STAT_NAMES, isScreensaver, SALT_LENGTH } from './companion.mjs';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { join } from 'path';
+import { tmpdir, homedir } from 'os';
 
 const RESET = '\x1b[0m';
 const BOLD = '\x1b[1m';
@@ -77,14 +79,42 @@ async function readStdin() {
 
 const [stdin, userId] = await Promise.all([readStdin(), Promise.resolve(getUserId())]);
 
-// Screensaver mode: random salt each refresh
+// Screensaver mode: random salt, respects interval
+const SCREENSAVER_STATE = join(tmpdir(), '.cc-companion-screensaver.json');
+const DEFAULT_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 function randomSalt() {
   let s = '';
   for (let i = 0; i < SALT_LENGTH; i++) s += CHARS[Math.floor(Math.random() * CHARS.length)];
   return s;
 }
-const bones = isScreensaver() ? roll(userId, randomSalt()) : roll(userId);
+
+function getScreensaverSalt() {
+  // Read interval from config (minutes), default 5
+  let intervalMs = DEFAULT_INTERVAL_MS;
+  try {
+    const config = JSON.parse(readFileSync(join(homedir(), '.cc-companion.json'), 'utf8'));
+    if (typeof config.screensaverInterval === 'number' && config.screensaverInterval > 0) {
+      intervalMs = config.screensaverInterval * 60 * 1000;
+    }
+  } catch {}
+
+  // Read last state
+  try {
+    const state = JSON.parse(readFileSync(SCREENSAVER_STATE, 'utf8'));
+    if (state.salt && state.timestamp && (Date.now() - state.timestamp) < intervalMs) {
+      return state.salt;
+    }
+  } catch {}
+
+  // Time to refresh
+  const salt = randomSalt();
+  try { writeFileSync(SCREENSAVER_STATE, JSON.stringify({ salt, timestamp: Date.now() })); } catch {}
+  return salt;
+}
+
+const bones = isScreensaver() ? roll(userId, getScreensaverSalt()) : roll(userId);
 const color = RARITY_ANSI[bones.rarity];
 
 // Col 1: species/rarity + sprite
