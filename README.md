@@ -1,12 +1,12 @@
 # CC Companion
 
-Your coding buddy pet for Claude Code. Each user gets a unique deterministic companion based on their account — view it, customize it, and display it in your statusline.
+Your coding buddy pet for Claude Code. Each user gets a unique deterministic companion based on their account — view it, customize it, display it in your statusline, or watch random pets parade by in screensaver mode.
 
 ```
 ★★★★★  DRAGON ✨
    \^^^/      DEBUGGING ██████████ 100    opus
   /^\  /^\    PATIENCE  ███████░░░  69    CC v2.1.104
- <  ✦  ✦  >   CHAOS     █████████░  86    ctx  ████░░░░░░  40%
+ <  ✦  ✦  >   CHAOS     █████████░  86    ctx ████░░░░░░  40%
  (   ~~   )   WISDOM    ██████████ 100    cost: $38.70
   `-vvvv-´    SNARK     ████░░░░░░  41    ⏱ 1h 54m
 ```
@@ -27,6 +27,7 @@ Your coding buddy pet for Claude Code. Each user gets a unique deterministic com
 | `/cc-companion:companion` | Show your companion pet (ASCII art, stats, rarity) |
 | `/cc-companion:companion-customize` | Choose your own species, rarity, eyes, hat, and stats |
 | `/cc-companion:companion-statusline` | Toggle companion statusline on/off |
+| `/cc-companion:companion-screensaver` | Toggle screensaver mode on/off |
 
 ## Statusline
 
@@ -37,6 +38,18 @@ The companion statusline replaces your default statusline (or claude-hud) with a
 - **Column 3**: Model, CC version, context usage bar, session cost, session duration
 
 Run `/cc-companion:companion-statusline` to toggle it on or off.
+
+## Screensaver Mode
+
+Turn your statusline into a pet parade — a random companion appears on every refresh, like opening blind boxes while you code.
+
+Run `/cc-companion:companion-screensaver` to toggle. It will ask for a refresh interval:
+
+- **0** — a new random pet on every statusline refresh (every time Claude responds)
+- **1** — a new pet every minute
+- **5** (default) — a new pet every 5 minutes
+
+Each random pet has its own species, rarity, eyes, hat, stats — fully randomized. You never know what you'll get next.
 
 ## Species
 
