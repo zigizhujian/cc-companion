@@ -83,8 +83,9 @@ function rollStats(rng, rarity) {
   return stats;
 }
 
-export function roll(userId) {
-  const rng = mulberry32(hashString(userId + SALT));
+export function roll(userId, saltOverride) {
+  const salt = saltOverride ?? getCustomSalt() ?? SALT;
+  const rng = mulberry32(hashString(userId + salt));
   const rarity = rollRarity(rng);
   const species = pick(rng, SPECIES);
   const eye = pick(rng, EYES);
@@ -224,6 +225,19 @@ export function renderFace(bones) {
     mushroom: `|${E}  ${E}|`, chonk: `(${E}.${E})`,
   };
   return faces[bones.species] || `(${E}${E})`;
+}
+
+// ============================================================================
+// Config — custom salt from ~/.cc-companion.json
+// ============================================================================
+
+const CONFIG_PATH = join(homedir(), '.cc-companion.json');
+
+export function getCustomSalt() {
+  try {
+    const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
+    return config.salt || null;
+  } catch { return null; }
 }
 
 // ============================================================================

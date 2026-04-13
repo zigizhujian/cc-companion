@@ -1,32 +1,39 @@
 ---
 description: "Choose your own companion pet (species, rarity, eyes, hat)"
-allowed-tools: Bash(bun:*), Bash(command:*)
+allowed-tools: Bash(bun:*), Bash(command:*), AskUserQuestion
 ---
 
 ## Your task
 
-Run the interactive customize script:
+Help the user choose their companion pet. Use AskUserQuestion to collect choices, then run the customize script with parameters.
 
+### Step 1: Show current pet
 ```bash
 PLUGIN_DIR=$(ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '{ print $(NF-1) "\t" $0 }' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-)
-bun "${PLUGIN_DIR}scripts/customize.mjs"
+"$HOME/.bun/bin/bun" "${PLUGIN_DIR}scripts/companion.mjs"
 ```
 
-If `bun` is not found, try with full path:
+### Step 2: Ask species and rarity using AskUserQuestion
+- Question 1: "Which species?" with options (max 4 per question, so split into rounds):
+  - Round 1: duck, goose, blob, cat
+  - Round 2: dragon, octopus, owl, penguin
+  - Round 3: turtle, snail, ghost, axolotl
+  - Round 4: capybara, cactus, robot, rabbit
+  - Round 5: mushroom, chonk
+  
+  OR: Ask the user to type their preferred species name directly.
+
+- Question 2: "Which rarity?" — common, uncommon, rare, epic (legendary as Other)
+
+- Question 3: "Which eyes?" — · (dot), ✦ (sparkle), × (cross), ◉ (circle)
+  
+- Question 4 (only if rarity is not common): "Which hat?" — crown, tophat, propeller, wizard
+
+### Step 3: Run the finder + patcher non-interactively
+After collecting all choices, run:
 ```bash
-"$HOME/.bun/bin/bun" "${PLUGIN_DIR}scripts/customize.mjs"
+PLUGIN_DIR=$(ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '{ print $(NF-1) "\t" $0 }' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-)
+"$HOME/.bun/bin/bun" "${PLUGIN_DIR}scripts/customize-auto.mjs" <species> <rarity> <eye> <hat>
 ```
 
-This script will:
-1. Show the user's current pet
-2. Let them choose species, rarity, eyes, hat, and optional stats
-3. Search for a matching salt (usually takes seconds)
-4. Patch the Claude Code binary
-5. Save config to ~/.cc-companion.json
-
-To restore the original pet, run with `restore` argument:
-```bash
-bun "${PLUGIN_DIR}scripts/customize.mjs" restore
-```
-
-**Important**: The user must restart Claude Code after patching for changes to take effect.
+### Step 4: Tell the user to restart Claude Code
