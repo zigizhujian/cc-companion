@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "cc-companion",
-      "source": ".",
+      "source": "./",
       "description": "Show your unique companion pet, customize it, or embed it in your statusline"
     }
   ]
