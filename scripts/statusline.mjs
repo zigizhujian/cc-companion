@@ -11,8 +11,35 @@ const DIM = '\x1b[2m';
 const RARITY_ANSI = { common:'\x1b[90m', uncommon:'\x1b[32m', rare:'\x1b[36m', epic:'\x1b[35m', legendary:'\x1b[38;5;220m' };
 
 function stripAnsi(s) { return s.replace(/\x1b\[[0-9;]*m/g, ''); }
+function charWidth(cp) {
+  // Emoji and misc symbols that render wide in most terminals
+  if ((cp >= 0x2600 && cp <= 0x27ff) ||
+    (cp >= 0x1f000 && cp <= 0x1fbff) ||
+    (cp >= 0x1f300 && cp <= 0x1f9ff)) return 2;
+  // CJK and other full-width ranges
+  if (cp >= 0x1100 && (
+    cp <= 0x115f || cp === 0x2329 || cp === 0x232a ||
+    (cp >= 0x2e80 && cp <= 0x3247) ||
+    (cp >= 0x3250 && cp <= 0x4dbf) ||
+    (cp >= 0x4e00 && cp <= 0xa4c6) ||
+    (cp >= 0xa960 && cp <= 0xa97c) ||
+    (cp >= 0xac00 && cp <= 0xd7a3) ||
+    (cp >= 0xf900 && cp <= 0xfaff) ||
+    (cp >= 0xfe10 && cp <= 0xfe19) ||
+    (cp >= 0xfe30 && cp <= 0xfe6b) ||
+    (cp >= 0xff01 && cp <= 0xff60) ||
+    (cp >= 0xffe0 && cp <= 0xffe6) ||
+    (cp >= 0x20000 && cp <= 0x3ffff)
+  )) return 2;
+  return 1;
+}
+function visualWidth(s) {
+  let w = 0;
+  for (const ch of s) w += charWidth(ch.codePointAt(0));
+  return w;
+}
 function padEnd(s, width) {
-  const visible = stripAnsi(s).length;
+  const visible = visualWidth(stripAnsi(s));
   return s + ' '.repeat(Math.max(0, width - visible));
 }
 
@@ -59,7 +86,7 @@ const shinyMark = bones.shiny ? ' \u2728' : '';
 const speciesLine = `${color}${RARITY_STARS[bones.rarity]}  ${BOLD}${bones.species.toUpperCase()}${RESET}${shinyMark}`;
 const sprite = renderSprite(bones, 0);
 const SPRITE_WIDTH = 12;
-const speciesVisible = stripAnsi(speciesLine).length;
+const speciesVisible = visualWidth(stripAnsi(speciesLine));
 const COL1_WIDTH = Math.max(SPRITE_WIDTH, speciesVisible);
 const spritePad = ' '.repeat(COL1_WIDTH - SPRITE_WIDTH);
 
