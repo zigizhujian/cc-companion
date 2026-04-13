@@ -54,7 +54,7 @@ const color = RARITY_ANSI[bones.rarity];
 
 // Col 1: species/rarity on row 0, then sprite
 const shinyMark = bones.shiny ? ' \u2728' : '';
-const speciesLine = `${color}${RARITY_STARS[bones.rarity]}  ${BOLD}${bones.rarity.toUpperCase()}${RESET}${shinyMark} ${color}${BOLD}${bones.species.toUpperCase()}${RESET}`;
+const speciesLine = `${color}${RARITY_STARS[bones.rarity]}  ${BOLD}${bones.species.toUpperCase()}${RESET}${shinyMark}`;
 const sprite = renderSprite(bones, 0);
 const SPRITE_WIDTH = 12;
 const speciesVisible = stripAnsi(speciesLine).length;
