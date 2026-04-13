@@ -84,18 +84,10 @@ const session = stdin?.session_name ?? '';
 const version = stdin?.version ? `CC v${stdin.version}` : '';
 const duration = getSessionDuration(stdin?.transcript_path);
 
-function formatTokens(n) {
-  if (!n) return null;
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${Math.round(n / 1_000)}k`;
-  return String(n);
-}
-const usage = stdin?.context_window?.current_usage;
-const tokIn = usage?.input_tokens;
-const tokOut = usage?.output_tokens;
-const tokCache = (usage?.cache_creation_input_tokens ?? 0) + (usage?.cache_read_input_tokens ?? 0);
-const tokLine = tokIn != null
-  ? `${DIM}in: ${formatTokens(tokIn)}  out: ${formatTokens(tokOut)}  cache: ${formatTokens(tokCache)}${RESET}`
+// Token/cost line
+const cost = stdin?.cost?.total_cost_usd;
+const costLine = cost != null && cost > 0
+  ? `${DIM}cost: $${cost.toFixed(2)}${RESET}`
   : '';
 
 function ctxBar(pct) {
@@ -110,7 +102,7 @@ const col3items = [
   model ? `${DIM}${model}${RESET}` : '',
   version ? `${DIM}${version}${RESET}` : '',
   pct != null ? ctxBar(pct) : '',
-  tokLine,
+  costLine,
   duration ? `${DIM}⏱ ${duration}${RESET}` : '',
 ].filter(Boolean);
 
