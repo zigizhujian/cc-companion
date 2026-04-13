@@ -236,8 +236,16 @@ const CONFIG_PATH = join(homedir(), '.cc-companion.json');
 export function getCustomSalt() {
   try {
     const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
+    if (config.screensaver) return null; // screensaver mode: return null to trigger random
     return config.salt || null;
   } catch { return null; }
+}
+
+export function isScreensaver() {
+  try {
+    const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
+    return config.screensaver === true;
+  } catch { return false; }
 }
 
 // ============================================================================

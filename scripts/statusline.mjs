@@ -2,7 +2,7 @@
 
 // CC Companion Statusline — 3-column layout: species+sprite | stats | info
 
-import { roll, renderSprite, getUserId, RARITY_STARS, STAT_NAMES } from './companion.mjs';
+import { roll, renderSprite, getUserId, RARITY_STARS, STAT_NAMES, isScreensaver, SALT_LENGTH } from './companion.mjs';
 import { readFileSync, existsSync } from 'fs';
 
 const RESET = '\x1b[0m';
@@ -76,7 +76,15 @@ async function readStdin() {
 }
 
 const [stdin, userId] = await Promise.all([readStdin(), Promise.resolve(getUserId())]);
-const bones = roll(userId);
+
+// Screensaver mode: random salt each refresh
+const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+function randomSalt() {
+  let s = '';
+  for (let i = 0; i < SALT_LENGTH; i++) s += CHARS[Math.floor(Math.random() * CHARS.length)];
+  return s;
+}
+const bones = isScreensaver() ? roll(userId, randomSalt()) : roll(userId);
 const color = RARITY_ANSI[bones.rarity];
 
 // Col 1: species/rarity + sprite
