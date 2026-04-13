@@ -30,7 +30,7 @@ const RARITY_ANSI = {
   uncommon:  '\x1b[32m',   // green
   rare:      '\x1b[36m',   // cyan
   epic:      '\x1b[35m',   // magenta
-  legendary: '\x1b[33m',   // yellow
+  legendary: '\x1b[33;1m',   // bright yellow/gold
 };
 const RESET = '\x1b[0m';
 const BOLD = '\x1b[1m';

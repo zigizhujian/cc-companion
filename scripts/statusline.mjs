@@ -8,7 +8,7 @@ import { readFileSync, existsSync } from 'fs';
 const RESET = '\x1b[0m';
 const BOLD = '\x1b[1m';
 const DIM = '\x1b[2m';
-const RARITY_ANSI = { common:'\x1b[90m', uncommon:'\x1b[32m', rare:'\x1b[36m', epic:'\x1b[35m', legendary:'\x1b[33m' };
+const RARITY_ANSI = { common:'\x1b[90m', uncommon:'\x1b[32m', rare:'\x1b[36m', epic:'\x1b[35m', legendary:'\x1b[33;1m' };
 
 function stripAnsi(s) { return s.replace(/\x1b\[[0-9;]*m/g, ''); }
 function padEnd(s, width) {
@@ -52,19 +52,16 @@ const [stdin, userId] = await Promise.all([readStdin(), Promise.resolve(getUserI
 const bones = roll(userId);
 const color = RARITY_ANSI[bones.rarity];
 
-// Col 1: species/rarity on row 0, shiny on row 1 if applicable, then sprite
-const shinyLine = bones.shiny ? `${BOLD}\u2728 SHINY \u2728${RESET}` : null;
-const speciesLine = `${color}${BOLD}${bones.species.toUpperCase()}${RESET} ${color}${RARITY_STARS[bones.rarity]}${RESET}  ${DIM}${bones.rarity.toUpperCase()}${RESET}`;
+// Col 1: species/rarity on row 0, then sprite
+const shinyMark = bones.shiny ? ' \u2728' : '';
+const speciesLine = `${color}${RARITY_STARS[bones.rarity]}  ${BOLD}${bones.rarity.toUpperCase()}${RESET}${shinyMark} ${color}${BOLD}${bones.species.toUpperCase()}${RESET}`;
 const sprite = renderSprite(bones, 0);
 const SPRITE_WIDTH = 12;
 const speciesVisible = stripAnsi(speciesLine).length;
-const shinyVisible = shinyLine ? stripAnsi(shinyLine).length : 0;
-const COL1_WIDTH = Math.max(SPRITE_WIDTH, speciesVisible, shinyVisible);
+const COL1_WIDTH = Math.max(SPRITE_WIDTH, speciesVisible);
 const spritePad = ' '.repeat(COL1_WIDTH - SPRITE_WIDTH);
-const col1Header = [padEnd(speciesLine, COL1_WIDTH)];
-if (shinyLine) col1Header.push(padEnd(shinyLine, COL1_WIDTH));
 const col1 = [
-  ...col1Header,
+  padEnd(speciesLine, COL1_WIDTH),
   ...sprite.map(line => color + line + RESET + spritePad),
 ];
 const totalRows = col1.length;
