@@ -4,11 +4,11 @@ Your coding buddy pet for Claude Code. Each user gets a unique deterministic com
 
 ```
 ★★★★★  DRAGON ✨
-   \^^^/      DEBUGGING ██████████ 100
-  /^\  /^\    PATIENCE  ███████░░░  69    opus
- <  ✦  ✦  >   CHAOS     █████████░  86    CC v2.1.104
- (   ~~   )   WISDOM    ██████████ 100    ctx  ████░░░░░░  40%
-  `-vvvv-´    SNARK     ████░░░░░░  41    cost: $38.70
+   \^^^/      DEBUGGING ██████████ 100    opus
+  /^\  /^\    PATIENCE  ███████░░░  69    CC v2.1.104
+ <  ✦  ✦  >   CHAOS     █████████░  86    ctx  ████░░░░░░  40%
+ (   ~~   )   WISDOM    ██████████ 100    cost: $38.70
+  `-vvvv-´    SNARK     ████░░░░░░  41    ⏱ 1h 54m
 ```
 
 ## Installation
@@ -34,7 +34,7 @@ The companion statusline replaces your default statusline (or claude-hud) with a
 
 - **Column 1**: Species name + ASCII sprite
 - **Column 2**: 5 stats with colored bars (cyan = high, yellow = mid, red = low)
-- **Column 3**: Model, CC version, context usage bar, session cost
+- **Column 3**: Model, CC version, context usage bar, session cost, session duration
 
 Run `/cc-companion:companion-statusline` to toggle it on or off.
 
