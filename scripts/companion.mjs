@@ -284,11 +284,11 @@ export function displayCompanion(userId) {
 
   // Info
   console.log();
-  console.log(`  Species:  ${BOLD}${bones.species}${RESET}`);
-  console.log(`  Rarity:   ${color}${bones.rarity} ${RARITY_STARS[bones.rarity]}${RESET}${bones.shiny ? ` ${SHINY}\u2728 SHINY${RESET}` : ''}`);
+  console.log(`  Species:  ${BOLD}${bones.species.toUpperCase()}${RESET}`);
+  console.log(`  Rarity:   ${color}${bones.rarity.toUpperCase()} ${RARITY_STARS[bones.rarity]}${RESET}${bones.shiny ? ` ${SHINY}\u2728 SHINY \u2728${RESET}` : ''}`);
   console.log(`  Eyes:     ${bones.eye}`);
   if (bones.hat !== 'none') {
-    console.log(`  Hat:      ${bones.hat}`);
+    console.log(`  Hat:      ${bones.hat.toUpperCase()}`);
   }
 
   // Stats

@@ -52,18 +52,22 @@ const [stdin, userId] = await Promise.all([readStdin(), Promise.resolve(getUserI
 const bones = roll(userId);
 const color = RARITY_ANSI[bones.rarity];
 
-// Col 1: species/rarity on row 0, then sprite (4 or 5 lines)
-const speciesLine = `${color}${BOLD}${bones.species}${RESET} ${color}${RARITY_STARS[bones.rarity]}${RESET}  ${DIM}${bones.rarity}${RESET}`;
+// Col 1: species/rarity on row 0, shiny on row 1 if applicable, then sprite
+const shinyLine = bones.shiny ? `${BOLD}\u2728 SHINY \u2728${RESET}` : null;
+const speciesLine = `${color}${BOLD}${bones.species.toUpperCase()}${RESET} ${color}${RARITY_STARS[bones.rarity]}${RESET}  ${DIM}${bones.rarity.toUpperCase()}${RESET}`;
 const sprite = renderSprite(bones, 0);
 const SPRITE_WIDTH = 12;
 const speciesVisible = stripAnsi(speciesLine).length;
-const COL1_WIDTH = Math.max(SPRITE_WIDTH, speciesVisible);
+const shinyVisible = shinyLine ? stripAnsi(shinyLine).length : 0;
+const COL1_WIDTH = Math.max(SPRITE_WIDTH, speciesVisible, shinyVisible);
 const spritePad = ' '.repeat(COL1_WIDTH - SPRITE_WIDTH);
+const col1Header = [padEnd(speciesLine, COL1_WIDTH)];
+if (shinyLine) col1Header.push(padEnd(shinyLine, COL1_WIDTH));
 const col1 = [
-  padEnd(speciesLine, COL1_WIDTH),
+  ...col1Header,
   ...sprite.map(line => color + line + RESET + spritePad),
 ];
-const totalRows = col1.length; // 5 (no hat) or 6 (with hat)
+const totalRows = col1.length;
 
 // Col 2: 5 stats, bottom-align
 const COL2_WIDTH = 26;
