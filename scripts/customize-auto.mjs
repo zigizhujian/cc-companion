@@ -4,8 +4,8 @@
 // Does NOT patch the CC binary. The companion statusline reads the custom salt from config.
 // Binary patching code is preserved in patcher.mjs for when official buddy returns.
 
-import { readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { join, dirname } from 'path';
 import { homedir } from 'os';
 import {
   SPECIES, RARITIES, EYES, HATS, SALT, SALT_LENGTH,
@@ -21,7 +21,7 @@ const YELLOW = '\x1b[33m';
 const RED = '\x1b[31m';
 const RARITY_ANSI = { common:'\x1b[90m', uncommon:'\x1b[32m', rare:'\x1b[36m', epic:'\x1b[35m', legendary:'\x1b[33m' };
 
-const CONFIG_PATH = join(homedir(), '.cc-companion.json');
+const CONFIG_PATH = join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json');
 
 function loadConfig() {
   try { return JSON.parse(readFileSync(CONFIG_PATH, 'utf8')); } catch { return {}; }
@@ -29,6 +29,7 @@ function loadConfig() {
 
 function saveConfig(data) {
   const existing = loadConfig();
+  mkdirSync(dirname(CONFIG_PATH), { recursive: true });
   writeFileSync(CONFIG_PATH, JSON.stringify({ ...existing, ...data }, null, 2));
 }
 

@@ -87,7 +87,7 @@ Every companion has 5 stats (one peak, one dump):
 
 The plugin brute-force searches for a salt that produces your desired traits using `Bun.hash`. Usually takes under 2 seconds, even for shiny legendary pets.
 
-Your custom salt is saved to `~/.cc-companion.json`. The statusline reads it automatically — no restart needed.
+Your custom salt is saved to `~/.claude/plugins/cc-companion/config.json`. The statusline reads it automatically — no restart needed.
 
 To restore your original (default) companion:
 

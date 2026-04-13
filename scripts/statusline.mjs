@@ -94,7 +94,7 @@ function getScreensaverSalt() {
   // Read interval from config (minutes), default 5
   let intervalMs = DEFAULT_INTERVAL_MS;
   try {
-    const config = JSON.parse(readFileSync(join(homedir(), '.cc-companion.json'), 'utf8'));
+    const config = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
     if (typeof config.screensaverInterval === 'number' && config.screensaverInterval > 0) {
       intervalMs = config.screensaverInterval * 60 * 1000;
     }

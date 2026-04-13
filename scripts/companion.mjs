@@ -231,7 +231,7 @@ export function renderFace(bones) {
 // Config — custom salt from ~/.cc-companion.json
 // ============================================================================
 
-const CONFIG_PATH = join(homedir(), '.cc-companion.json');
+const CONFIG_PATH = join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json');
 
 export function getCustomSalt() {
   try {
