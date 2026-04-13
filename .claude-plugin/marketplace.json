@@ -3,7 +3,7 @@
   "owner": { "name": "zigizhujian" },
   "metadata": {
     "description": "CC Companion — your coding buddy pet for Claude Code",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {
