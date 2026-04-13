@@ -114,7 +114,7 @@ function ctxBar(pct) {
   const filled = Math.round(pct / 10);
   const barColor = pct > 80 ? '\x1b[31m' : pct > 50 ? '\x1b[33m' : '\x1b[32m';
   const bar = barColor + '\u2588'.repeat(filled) + DIM + '\u2591'.repeat(10 - filled) + RESET;
-  return `${DIM}ctx ${RESET}${bar}${String(pct).padStart(4)}%`;
+  return `${DIM}ctx${RESET} ${bar} ${String(pct).padStart(3)}%`;
 }
 
 // Build col3 items — each on its own line
