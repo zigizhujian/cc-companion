@@ -13,7 +13,6 @@
   "commands": [
     "./commands/companion.md",
     "./commands/companion-customize.md",
-    "./commands/companion-statusline.md",
-    "./commands/companion-hud.md"
+    "./commands/companion-statusline.md"
   ]
 }
