@@ -12,8 +12,8 @@ const RARITY_ANSI = { common:'\x1b[90m', uncommon:'\x1b[32m', rare:'\x1b[36m', e
 
 function stripAnsi(s) { return s.replace(/\x1b\[[0-9;]*m/g, ''); }
 function charWidth(cp) {
-  // Emoji and misc symbols that render wide in most terminals
-  if ((cp >= 0x2600 && cp <= 0x27ff) ||
+  // Emoji that render wide in most terminals
+  if ((cp >= 0x2700 && cp <= 0x27bf) ||
     (cp >= 0x1f000 && cp <= 0x1fbff) ||
     (cp >= 0x1f300 && cp <= 0x1f9ff)) return 2;
   // CJK and other full-width ranges
