@@ -91,14 +91,17 @@ function randomSalt() {
 }
 
 function getScreensaverSalt() {
-  // Read interval from config (minutes), default 5
+  // Read interval from config (minutes), default 5. 0 = every refresh.
   let intervalMs = DEFAULT_INTERVAL_MS;
   try {
     const config = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
-    if (typeof config.screensaverInterval === 'number' && config.screensaverInterval > 0) {
-      intervalMs = config.screensaverInterval * 60 * 1000;
+    if (typeof config.screensaverInterval === 'number') {
+      intervalMs = config.screensaverInterval === 0 ? 0 : config.screensaverInterval * 60 * 1000;
     }
   } catch {}
+
+  // 0 = every refresh, skip cache
+  if (intervalMs === 0) return randomSalt();
 
   // Read last state
   try {
