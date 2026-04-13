@@ -48,12 +48,14 @@ if (args[0] === 'restore') {
 }
 
 if (args.length < 3) {
-  console.error(`Usage: customize-auto.mjs <species> <rarity> <eye> [hat]`);
+  console.error(`Usage: customize-auto.mjs <species> <rarity> <eye> [hat] [--shiny]`);
   console.error(`       customize-auto.mjs restore`);
   process.exit(1);
 }
 
-const [species, rarity, eye, hat = 'none'] = args;
+const shiny = args.includes('--shiny');
+const positional = args.filter(a => !a.startsWith('--'));
+const [species, rarity, eye, hat = 'none'] = positional;
 
 // Validate
 if (!SPECIES.includes(species)) { console.error(`${RED}Invalid species: ${species}${RESET}`); process.exit(1); }
@@ -64,14 +66,14 @@ if (rarity !== 'common' && hat !== 'none' && !HATS.includes(hat)) { console.erro
 const desired = {
   species, rarity, eye,
   hat: rarity === 'common' ? 'none' : hat,
-  shiny: false, peak: null, dump: null,
+  shiny, peak: null, dump: null,
 };
 
 const userId = getUserId();
 const color = RARITY_ANSI[rarity];
 
 console.log(`\n${BOLD}  Target:${RESET} ${color}${species} ${RARITY_STARS[rarity]} ${rarity}${RESET}`);
-console.log(`  Eyes: ${eye}  Hat: ${desired.hat}`);
+console.log(`  Eyes: ${eye}  Hat: ${desired.hat}${shiny ? '  SHINY' : ''}`);
 
 // Find salt
 console.log(`\n${YELLOW}  Searching for matching salt...${RESET}`);
