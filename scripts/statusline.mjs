@@ -146,19 +146,16 @@ function getAnimationFrame(speciesFrameCount) {
     return { frame: step === -1 ? 0 : step, blink: step === -1 };
   }
 
-  // Sequential: read current frame, display it, write next frame
+  // Sequential: read current frame, write next
   let frame = 0;
   try {
-    const state = JSON.parse(readFileSync(FRAME_STATE, 'utf8'));
-    frame = (typeof state.frame === 'number') ? state.frame : 0;
+    frame = JSON.parse(readFileSync(FRAME_STATE, 'utf8')).frame ?? 0;
   } catch {}
-  const nextFrame = (frame + 1) % speciesFrameCount;
-  try { writeFileSync(FRAME_STATE, JSON.stringify({ frame: nextFrame })); } catch {}
+  try { writeFileSync(FRAME_STATE, JSON.stringify({ frame: (frame + 1) % speciesFrameCount })); } catch {}
   return { frame, blink: false };
 }
 
-const spriteFrameCount = { duck:3, goose:3, blob:3, cat:3, dragon:3, octopus:3, owl:3, penguin:3, turtle:3, snail:3, ghost:3, axolotl:3, capybara:3, cactus:3, robot:3, rabbit:3, mushroom:3, chonk:3 };
-const { frame, blink } = getAnimationFrame(spriteFrameCount[bones.species] || 3);
+const { frame, blink } = getAnimationFrame(3);
 const sprite = renderSprite(bones, frame).map(line =>
   blink ? line.replaceAll(bones.eye, '-') : line
 );
