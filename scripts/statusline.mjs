@@ -125,7 +125,16 @@ const color = RARITY_ANSI[bones.rarity];
 // Has hat: species on top = +1 row
 const shinyMark = bones.shiny ? ' \u2728' : '';
 const speciesLine = `${color}${RARITY_STARS[bones.rarity]}  ${BOLD}${bones.species.toUpperCase()}${RESET}${shinyMark}`;
-const sprite = renderSprite(bones, 0);
+// Animation: time-driven frame selection (CC's idle sequence)
+const IDLE_SEQUENCE = [0, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 2, 0, 0, 0];
+const tick = Math.floor(Date.now() / 500) % IDLE_SEQUENCE.length;
+const step = IDLE_SEQUENCE[tick];
+const blink = step === -1;
+const frame = blink ? 0 : step;
+
+const sprite = renderSprite(bones, frame).map(line =>
+  blink ? line.replaceAll(bones.eye, '-') : line
+);
 const SPRITE_WIDTH = 12;
 const speciesVisible = visualWidth(stripAnsi(speciesLine));
 const COL1_WIDTH = Math.max(SPRITE_WIDTH, speciesVisible);
