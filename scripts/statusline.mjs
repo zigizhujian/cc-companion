@@ -91,16 +91,46 @@ function randomSalt() {
 }
 
 function getScreensaverSalt() {
-  // Read interval from config (minutes), default 5. 0 = every refresh.
+  // Read config
   let intervalMs = DEFAULT_INTERVAL_MS;
+  let screensaverMode = 'random';
+  let collection = [];
   try {
     const config = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
     if (typeof config.screensaverInterval === 'number') {
       intervalMs = config.screensaverInterval === 0 ? 0 : config.screensaverInterval * 60 * 1000;
     }
+    if (config.screensaverMode === 'collection') screensaverMode = 'collection';
+    if (Array.isArray(config.collection)) collection = config.collection;
   } catch {}
 
-  // 0 = every refresh, skip cache
+  // Collection mode: cycle through saved pets
+  if (screensaverMode === 'collection' && collection.length > 0) {
+    if (intervalMs === 0) {
+      // Every refresh: rotate index
+      let idx = 0;
+      try { idx = JSON.parse(readFileSync(SCREENSAVER_STATE, 'utf8')).idx ?? 0; } catch {}
+      const next = (idx + 1) % collection.length;
+      try { writeFileSync(SCREENSAVER_STATE, JSON.stringify({ idx: next, timestamp: Date.now() })); } catch {}
+      return collection[idx].salt;
+    }
+    // Timed: check if interval passed
+    try {
+      const state = JSON.parse(readFileSync(SCREENSAVER_STATE, 'utf8'));
+      if (state.salt && state.timestamp && (Date.now() - state.timestamp) < intervalMs) {
+        return state.salt;
+      }
+      const idx = ((state.idx ?? -1) + 1) % collection.length;
+      const salt = collection[idx].salt;
+      try { writeFileSync(SCREENSAVER_STATE, JSON.stringify({ salt, idx, timestamp: Date.now() })); } catch {}
+      return salt;
+    } catch {}
+    const salt = collection[0].salt;
+    try { writeFileSync(SCREENSAVER_STATE, JSON.stringify({ salt, idx: 0, timestamp: Date.now() })); } catch {}
+    return salt;
+  }
+
+  // Random mode (default)
   if (intervalMs === 0) return randomSalt();
 
   // Read last state
