@@ -146,13 +146,15 @@ function getAnimationFrame(speciesFrameCount) {
     return { frame: step === -1 ? 0 : step, blink: step === -1 };
   }
 
-  // Sequential: read current frame, write next
-  let frame = 0;
+  // Sequential: 0→1→2→blink→0→1→2→blink (4 steps, blink = frame 0 with eyes replaced)
+  const SEQ = [0, 1, 2, -1];
+  let step = 0;
   try {
-    frame = JSON.parse(readFileSync(FRAME_STATE, 'utf8')).frame ?? 0;
+    step = JSON.parse(readFileSync(FRAME_STATE, 'utf8')).frame ?? 0;
   } catch {}
-  try { writeFileSync(FRAME_STATE, JSON.stringify({ frame: (frame + 1) % speciesFrameCount })); } catch {}
-  return { frame, blink: false };
+  try { writeFileSync(FRAME_STATE, JSON.stringify({ frame: (step + 1) % SEQ.length })); } catch {}
+  const s = SEQ[step];
+  return { frame: s === -1 ? 0 : s, blink: s === -1 };
 }
 
 const { frame, blink } = getAnimationFrame(3);
