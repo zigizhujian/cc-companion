@@ -2,9 +2,10 @@
 
 ## 4.1.0
 
-- Auto-refresh animation: `refreshInterval: 1` in statusline config for smooth 1fps animation
-- Animation modes: `sequential` (default, 0→1→2) and `classic` (CC's original idle sequence)
-- Classic mode documented as user-switchable option
+- Classic animation mode as default: CC's idle sequence with 1s refresh — natural fidgets and blinks
+- Sequential mode available as option (0→1→2→blink cycle)
+- Auto-refresh animation via `refreshInterval: 1` in statusline config
+- Blink frame added to sequential mode
 
 ## 4.0.0
 

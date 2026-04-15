@@ -125,18 +125,18 @@ const color = RARITY_ANSI[bones.rarity];
 // Has hat: species on top = +1 row
 const shinyMark = bones.shiny ? ' \u2728' : '';
 const speciesLine = `${color}${RARITY_STARS[bones.rarity]}  ${BOLD}${bones.species.toUpperCase()}${RESET}${shinyMark}`;
-// Animation: sequential (default) or classic CC idle sequence
-// animationMode: "sequential" (default) | "classic"
-// "sequential": frame advances on every refresh (0→1→2→0), smooth with refreshInterval=1s
+// Animation: classic (default) or sequential
+// animationMode: "classic" (default) | "sequential"
 // "classic": CC's original time-driven idle [0,0,0,0,1,0,0,0,-1,0,0,2,0,0,0] at 500ms/frame,
-//   mostly idle with occasional fidgets and blinks — more natural but subtler
+//   mostly idle with occasional fidgets and blinks — more natural, best with refreshInterval=1s
+// "sequential": frame advances on every refresh (0→1→2→blink→0), mechanical but predictable
 const FRAME_STATE = join(tmpdir(), '.cc-companion-frame.json');
 
 function getAnimationFrame(speciesFrameCount) {
-  let animationMode = 'sequential';
+  let animationMode = 'classic';
   try {
     const config = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
-    if (config.animationMode === 'classic') animationMode = 'classic';
+    if (config.animationMode === 'sequential') animationMode = 'sequential';
   } catch {}
 
   if (animationMode === 'classic') {
