@@ -116,19 +116,6 @@ Customization works by finding an alternative salt (same length, 15 characters) 
 
 **Note**: The plugin also includes binary patching code (`patcher.mjs`) for when Anthropic re-enables the official `/buddy` UI. Currently unused since the official buddy feature is not active.
 
-## Advanced Config
-
-`~/.claude/plugins/cc-companion/config.json` supports a few hidden options:
-
-```json
-{
-  "animationMode": "classic"
-}
-```
-
-- `"sequential"` (default) — frame advances on every statusline refresh, guaranteed to change each time
-- `"classic"` — replicates CC's original idle sequence: time-driven, frame selected by `Date.now() / 500ms % 15`, includes blink effect
-
 ## License
 
 MIT
