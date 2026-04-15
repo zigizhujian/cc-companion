@@ -188,34 +188,22 @@ function getAnimationFrame(speciesFrameCount) {
 }
 
 const { frame, blink } = getAnimationFrame(3);
-const sprite = renderSprite(bones, frame).map(line =>
+let sprite = renderSprite(bones, frame).map(line =>
   blink ? line.replaceAll(bones.eye, '-') : line
 );
+// Always 5 lines: pad top if needed
+while (sprite.length < 5) sprite.unshift('            ');
+
 const SPRITE_WIDTH = 12;
 const speciesVisible = visualWidth(stripAnsi(speciesLine));
 const COL1_WIDTH = Math.max(SPRITE_WIDTH, speciesVisible);
 const spritePad = ' '.repeat(COL1_WIDTH - SPRITE_WIDTH);
 
-let col1;
-if (bones.hat === 'none' && sprite[0] && !sprite[0].trim()) {
-  // No hat, first line blank: species replaces blank line
-  col1 = [
-    padEnd(speciesLine, COL1_WIDTH),
-    ...sprite.slice(1).map(line => color + line + RESET + spritePad),
-  ];
-} else if (bones.hat === 'none') {
-  // No hat, no blank line (already shifted): species on top
-  col1 = [
-    padEnd(speciesLine, COL1_WIDTH),
-    ...sprite.map(line => color + line + RESET + spritePad),
-  ];
-} else {
-  // Has hat: species on top, then full sprite
-  col1 = [
-    padEnd(speciesLine, COL1_WIDTH),
-    ...sprite.map(line => color + line + RESET + spritePad),
-  ];
-}
+// Always 6 rows: species line + 5 sprite lines
+const col1 = [
+  padEnd(speciesLine, COL1_WIDTH),
+  ...sprite.map(line => color + line + RESET + spritePad),
+];
 const totalRows = col1.length;
 
 // Col 2: 5 stats, bottom-align
