@@ -38,7 +38,7 @@ The companion statusline replaces your default statusline (or claude-hud) with a
 - **Column 2**: 5 stats with colored bars (cyan = high, yellow = mid, red = low)
 - **Column 3**: Model, CC version, context usage bar, session cost, session duration
 
-The statusline auto-refreshes every second (`refreshInterval: 1`), driving a natural animation with occasional fidgets and blinks.
+The statusline auto-refreshes every 4 seconds (`refreshInterval: 4`), driving a natural animation with occasional fidgets and blinks — one full cycle per minute.
 
 Run `/cc-companion:companion-statusline` to toggle it on or off.
 
@@ -46,8 +46,8 @@ Run `/cc-companion:companion-statusline` to toggle it on or off.
 
 Set `animationMode` in `~/.claude/plugins/cc-companion/config.json`:
 
-- **`"classic"`** (default) — CC's original time-driven idle sequence `[0,0,0,0,1,0,0,0,-1,0,0,2,0,0,0]` at 500ms/frame. Mostly idle, with occasional fidgets and blinks — feels alive. Conversations increase animation frequency.
-- **`"sequential"`** — frame advances on every refresh: 0→1→2→blink→0. Mechanical but predictable. Best with `refreshInterval: 5`.
+- **`"classic"`** (default) — CC's original time-driven idle sequence `[0,0,0,0,1,0,0,0,-1,0,0,2,0,0,0]` at 500ms/frame. Mostly idle, with occasional fidgets and blinks — feels alive. One full cycle per minute at `refreshInterval: 4`.
+- **`"sequential"`** — frame advances on every refresh: 0→1→2→blink→0. Mechanical but predictable.
 
 ## Screensaver Mode
 
