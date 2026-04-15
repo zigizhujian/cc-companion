@@ -34,11 +34,20 @@ Your coding buddy pet for Claude Code. Each user gets a unique deterministic com
 
 The companion statusline replaces your default statusline (or claude-hud) with a 3-column display:
 
-- **Column 1**: Species name + animated ASCII sprite (cycles 3 frames on each refresh)
+- **Column 1**: Species name + animated ASCII sprite (cycles 3 frames every second)
 - **Column 2**: 5 stats with colored bars (cyan = high, yellow = mid, red = low)
 - **Column 3**: Model, CC version, context usage bar, session cost, session duration
 
+The statusline auto-refreshes every second (`refreshInterval: 1`), driving a smooth 3-frame animation cycle.
+
 Run `/cc-companion:companion-statusline` to toggle it on or off.
+
+### Animation Modes
+
+Set `animationMode` in `~/.claude/plugins/cc-companion/config.json`:
+
+- **`"sequential"`** (default) — frame advances on every refresh: 0→1→2→0. With `refreshInterval: 1`, this gives smooth 1fps animation.
+- **`"classic"`** — replicates CC's original time-driven idle sequence `[0,0,0,0,1,0,0,0,-1,0,0,2,0,0,0]` at 500ms/frame. Mostly idle (frame 0), with occasional fidgets and blinks — more natural but subtler.
 
 ## Screensaver Mode
 
@@ -121,8 +130,6 @@ Claude Code generates companions deterministically: `Bun.hash(userId + salt)` fe
 Customization works by finding an alternative salt (same length, 15 characters) that produces your desired traits when combined with your userId. The salt is stored locally — no binary patching required.
 
 Config is stored at `~/.claude/plugins/cc-companion/config.json`.
-
-**Note**: The plugin also includes binary patching code (`patcher.mjs`) for when Anthropic re-enables the official `/buddy` UI. Currently unused since the official buddy feature is not active.
 
 ## License
 

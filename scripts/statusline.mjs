@@ -127,9 +127,9 @@ const shinyMark = bones.shiny ? ' \u2728' : '';
 const speciesLine = `${color}${RARITY_STARS[bones.rarity]}  ${BOLD}${bones.species.toUpperCase()}${RESET}${shinyMark}`;
 // Animation: sequential (default) or classic CC idle sequence
 // animationMode: "sequential" (default) | "classic"
-// "classic" replicates CC's original time-driven idle [0,0,0,0,1,0,0,0,-1,0,0,2,0,0,0] at 500ms/frame.
-// Not recommended for normal use: requires very frequent refreshes to see changes,
-// and causes I/O latency on every statusline render.
+// "sequential": frame advances on every refresh (0→1→2→0), smooth with refreshInterval=1s
+// "classic": CC's original time-driven idle [0,0,0,0,1,0,0,0,-1,0,0,2,0,0,0] at 500ms/frame,
+//   mostly idle with occasional fidgets and blinks — more natural but subtler
 const FRAME_STATE = join(tmpdir(), '.cc-companion-frame.json');
 
 function getAnimationFrame(speciesFrameCount) {

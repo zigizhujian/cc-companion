@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.1.0
+
+- Auto-refresh animation: `refreshInterval: 1` in statusline config for smooth 1fps animation
+- Animation modes: `sequential` (default, 0→1→2) and `classic` (CC's original idle sequence)
+- Classic mode documented as user-switchable option
+
 ## 4.0.0
 
 - Collection system: save, list, switch, and remove favorite pets
