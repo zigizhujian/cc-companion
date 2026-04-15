@@ -31,7 +31,7 @@ Read `~/.claude/plugins/cc-companion/config.json`, then ask:
 PLUGIN_DIR=$(ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '{ print $(NF-1) "\t" $0 }' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-)
 "$HOME/.bun/bin/bun" "${PLUGIN_DIR}scripts/companion.mjs"
 ```
-2. Ask for a name (e.g. "Gold Dragon")
+2. Ask for a name. Default name is: `<Rarity> [Shiny] [Hat] <Species>` in English (e.g. "Legendary Shiny Crown Dragon"). If user confirms, use the default.
 3. Add to `collection` array in config: `{ "name": "<name>", "salt": "<current salt>", "species": "<species>", "rarity": "<rarity>" }`
 4. Tell user "Saved!"
 
