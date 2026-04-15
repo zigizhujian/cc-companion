@@ -125,13 +125,35 @@ const color = RARITY_ANSI[bones.rarity];
 // Has hat: species on top = +1 row
 const shinyMark = bones.shiny ? ' \u2728' : '';
 const speciesLine = `${color}${RARITY_STARS[bones.rarity]}  ${BOLD}${bones.species.toUpperCase()}${RESET}${shinyMark}`;
-// Animation: time-driven frame selection (CC's idle sequence)
-const IDLE_SEQUENCE = [0, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 2, 0, 0, 0];
-const tick = Math.floor(Date.now() / 500) % IDLE_SEQUENCE.length;
-const step = IDLE_SEQUENCE[tick];
-const blink = step === -1;
-const frame = blink ? 0 : step;
+// Animation: sequential (default) or classic CC idle sequence
+const FRAME_STATE = join(tmpdir(), '.cc-companion-frame.json');
 
+function getAnimationFrame(speciesFrameCount) {
+  let animationMode = 'sequential';
+  try {
+    const config = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
+    if (config.animationMode === 'classic') animationMode = 'classic';
+  } catch {}
+
+  if (animationMode === 'classic') {
+    // CC's original idle sequence, time-driven
+    const IDLE_SEQUENCE = [0, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 2, 0, 0, 0];
+    const step = IDLE_SEQUENCE[Math.floor(Date.now() / 500) % IDLE_SEQUENCE.length];
+    return { frame: step === -1 ? 0 : step, blink: step === -1 };
+  }
+
+  // Sequential: increment frame on each refresh
+  let frame = 0;
+  try {
+    const state = JSON.parse(readFileSync(FRAME_STATE, 'utf8'));
+    frame = (state.frame + 1) % speciesFrameCount;
+  } catch {}
+  try { writeFileSync(FRAME_STATE, JSON.stringify({ frame })); } catch {}
+  return { frame, blink: false };
+}
+
+const spriteFrameCount = { duck:3, goose:3, blob:3, cat:3, dragon:3, octopus:3, owl:3, penguin:3, turtle:3, snail:3, ghost:3, axolotl:3, capybara:3, cactus:3, robot:3, rabbit:3, mushroom:3, chonk:3 };
+const { frame, blink } = getAnimationFrame(spriteFrameCount[bones.species] || 3);
 const sprite = renderSprite(bones, frame).map(line =>
   blink ? line.replaceAll(bones.eye, '-') : line
 );
