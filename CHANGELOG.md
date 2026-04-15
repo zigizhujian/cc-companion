@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.2.0
+
+- Fix: unified 6-row layout (species + 5-line sprite) — frame 2 effects (smoke, spores, antenna) no longer get clipped
+- Screensaver: collection mode to cycle through saved favorites
+- Classic animation as default with 1s refresh
+
 ## 4.1.0
 
 - Classic animation mode as default: CC's idle sequence with 1s refresh — natural fidgets and blinks
