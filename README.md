@@ -1,6 +1,6 @@
 # CC Companion
 
-Your coding buddy pet for Claude Code. Each user gets a unique deterministic companion based on their account — view it, customize it, display it in your statusline, or watch random pets parade by in screensaver mode.
+Your coding buddy pet for Claude Code. Each user gets a unique deterministic companion based on their account — view it, customize it, display it in your statusline, collect favorites, or watch random pets parade by in screensaver mode.
 
 ```
 ★★★★★  DRAGON ✨
@@ -28,12 +28,13 @@ Your coding buddy pet for Claude Code. Each user gets a unique deterministic com
 | `/cc-companion:companion-customize` | Choose your own species, rarity, eyes, hat, and stats |
 | `/cc-companion:companion-statusline` | Toggle companion statusline on/off |
 | `/cc-companion:companion-screensaver` | Toggle screensaver mode on/off |
+| `/cc-companion:companion-collection` | Save, list, switch, or remove favorite pets |
 
 ## Statusline
 
 The companion statusline replaces your default statusline (or claude-hud) with a 3-column display:
 
-- **Column 1**: Species name + ASCII sprite
+- **Column 1**: Species name + animated ASCII sprite (cycles 3 frames on each refresh)
 - **Column 2**: 5 stats with colored bars (cyan = high, yellow = mid, red = low)
 - **Column 3**: Model, CC version, context usage bar, session cost, session duration
 
@@ -41,7 +42,7 @@ Run `/cc-companion:companion-statusline` to toggle it on or off.
 
 ## Screensaver Mode
 
-Turn your statusline into a pet parade — a random companion appears on every refresh, like opening blind boxes while you code.
+Turn your statusline into a pet parade — a random companion appears periodically, like opening blind boxes while you code.
 
 Run `/cc-companion:companion-screensaver` to toggle. It will ask for a refresh interval:
 
@@ -51,9 +52,20 @@ Run `/cc-companion:companion-screensaver` to toggle. It will ask for a refresh i
 
 Each random pet has its own species, rarity, eyes, hat, stats — fully randomized. You never know what you'll get next.
 
+## Collection
+
+Save your favorite pets and switch between them anytime.
+
+Run `/cc-companion:companion-collection`:
+
+- **save** — save current pet to your collection (default name: `Legendary Shiny Crown Dragon`)
+- **list** — show all collected pets
+- **switch** — switch to a collected pet
+- **remove** — remove a pet from collection
+
 ## Species
 
-18 unique species, each with 3-frame idle animation:
+18 unique species, each with 3-frame animation:
 
 ```
  1. duck       5. dragon     9. turtle    13. capybara  17. mushroom
@@ -100,19 +112,15 @@ Every companion has 5 stats (one peak, one dump):
 
 The plugin brute-force searches for a salt that produces your desired traits using `Bun.hash`. Usually takes under 2 seconds, even for shiny legendary pets.
 
-Your custom salt is saved to `~/.claude/plugins/cc-companion/config.json`. The statusline reads it automatically — no restart needed.
-
-To restore your original (default) companion:
-
-```bash
-~/.bun/bin/bun ~/.claude/plugins/cache/cc-companion/cc-companion/*/scripts/customize-auto.mjs restore
-```
+You can also restore to your original (default) companion via the customize command.
 
 ## How It Works
 
 Claude Code generates companions deterministically: `Bun.hash(userId + salt)` feeds a Mulberry32 seeded PRNG that picks species, rarity, eyes, hat, and stats. This plugin uses the exact same algorithm to display your pet.
 
 Customization works by finding an alternative salt (same length, 15 characters) that produces your desired traits when combined with your userId. The salt is stored locally — no binary patching required.
+
+Config is stored at `~/.claude/plugins/cc-companion/config.json`.
 
 **Note**: The plugin also includes binary patching code (`patcher.mjs`) for when Anthropic re-enables the official `/buddy` UI. Currently unused since the official buddy feature is not active.
 
