@@ -146,13 +146,14 @@ function getAnimationFrame(speciesFrameCount) {
     return { frame: step === -1 ? 0 : step, blink: step === -1 };
   }
 
-  // Sequential: increment frame on each refresh
+  // Sequential: read current frame, display it, write next frame
   let frame = 0;
   try {
     const state = JSON.parse(readFileSync(FRAME_STATE, 'utf8'));
-    frame = (state.frame + 1) % speciesFrameCount;
+    frame = (typeof state.frame === 'number') ? state.frame : 0;
   } catch {}
-  try { writeFileSync(FRAME_STATE, JSON.stringify({ frame })); } catch {}
+  const nextFrame = (frame + 1) % speciesFrameCount;
+  try { writeFileSync(FRAME_STATE, JSON.stringify({ frame: nextFrame })); } catch {}
   return { frame, blink: false };
 }
 
