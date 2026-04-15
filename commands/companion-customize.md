@@ -7,11 +7,18 @@ allowed-tools: Bash(bun:*), Bash(command:*)
 
 Help the user customize their companion pet. This is a conversational flow — ask the user questions directly in chat, no need for AskUserQuestion.
 
-### Step 1: Show current pet
+### Step 1: Show current pet and ask what to do
 ```bash
 PLUGIN_DIR=$(ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '{ print $(NF-1) "\t" $0 }' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-)
 "$HOME/.bun/bin/bun" "${PLUGIN_DIR}scripts/companion.mjs"
 ```
+
+Then ask: "Customize a new pet, or restore to your original?" If restore, run:
+```bash
+PLUGIN_DIR=$(ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '{ print $(NF-1) "\t" $0 }' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-)
+"$HOME/.bun/bin/bun" "${PLUGIN_DIR}scripts/customize-auto.mjs" restore
+```
+Then stop.
 
 ### Step 2: Ask the user to choose, one at a time
 
