@@ -15,6 +15,7 @@
     "./commands/companion-customize.md",
     "./commands/companion-statusline.md",
     "./commands/companion-screensaver.md",
-    "./commands/companion-collection.md"
+    "./commands/companion-collection.md",
+    "./commands/companion-pet.md"
   ]
 }

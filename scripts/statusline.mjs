@@ -275,6 +275,22 @@ if (displayMode === 'sprite') {
   const cols = getTerminalWidth();
   const BRAILLE = '\u2800';
   const pad = Math.max(0, cols - SPRITE_WIDTH - 5);
+  const RED = '\x1b[31m';
+
+  // Hearts animation: show for 5 seconds after petAt
+  let showHearts = false;
+  try {
+    const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
+    if (cfg.petAt && (Date.now() - cfg.petAt) < 5000) showHearts = true;
+  } catch {}
+
+  if (showHearts) {
+    const HEART = '\u2764';
+    const heartsLine = `${HEART}   ${HEART}    ${HEART}`;
+    const heartPad = Math.max(0, pad + Math.floor((SPRITE_WIDTH - 12) / 2));
+    console.log(BRAILLE.repeat(heartPad) + RED + heartsLine + RESET);
+  }
+
   for (const line of sprite) {
     console.log(BRAILLE.repeat(pad) + color + line + RESET);
   }
