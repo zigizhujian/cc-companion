@@ -294,7 +294,7 @@ if (displayMode === 'sprite') {
       let state = { framesLeft: 0, frame: 0, petAt: 0 };
       try { state = JSON.parse(readFileSync(HEART_FRAME_STATE, 'utf8')); } catch {}
       if (cfg.petAt > (state.petAt || 0)) {
-        state = { framesLeft: 4, frame: 0, petAt: cfg.petAt };
+        state = { framesLeft: 5, frame: 0, petAt: cfg.petAt };
       }
       if (state.framesLeft > 0) {
         showHearts = true;
