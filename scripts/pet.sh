@@ -3,9 +3,12 @@
 CONFIG="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/cc-companion/config.json"
 if [ ! -f "$CONFIG" ]; then echo "No companion config found"; exit 1; fi
 
-# Write heart state directly to tmp — statusline reads this
 TMPDIR_PATH="${TMPDIR:-/tmp}"
-echo '{"framesLeft":4,"frame":0}' > "${TMPDIR_PATH}/.cc-companion-heart-frame.json"
+# Write heart state with timestamp for protection window
+python3 -c "
+import json, time
+print(json.dumps({'framesLeft':4,'frame':0,'writtenAt':int(time.time()*1000)}))
+" > "${TMPDIR_PATH}/.cc-companion-heart-frame.json"
 
 # Print pet name
 python3 -c "

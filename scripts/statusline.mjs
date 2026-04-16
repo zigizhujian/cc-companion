@@ -296,16 +296,23 @@ if (displayMode === 'sprite') {
     `   ${HEART}  ${HEART} ${HEART}   `,
   ];
 
-  // Hearts animation: pet.sh writes { framesLeft, frame } to tmp, we read and decrement
+  // Hearts animation: pet.sh writes { framesLeft, frame, writtenAt } to tmp
+  // 2-second protection window: don't consume frames within 2s of pet to avoid bash-triggered refresh eating frame 0
+  const HEART_PROTECTION_MS = 1500;
   let showHearts = false;
   let heartFrame = 0;
   const HEART_FRAME_STATE = join(tmpdir(), '.cc-companion-heart-frame.json');
   try {
     const state = JSON.parse(readFileSync(HEART_FRAME_STATE, 'utf8'));
     if (state.framesLeft > 0) {
-      showHearts = true;
-      heartFrame = state.frame;
-      writeFileSync(HEART_FRAME_STATE, JSON.stringify({ framesLeft: state.framesLeft - 1, frame: (state.frame + 1) % HEART_FRAMES.length }));
+      if (state.writtenAt && (Date.now() - state.writtenAt) < HEART_PROTECTION_MS) {
+        // Inside protection window: skip (don't show, don't consume)
+      } else {
+        // Outside protection: show and consume
+        showHearts = true;
+        heartFrame = state.frame;
+        writeFileSync(HEART_FRAME_STATE, JSON.stringify({ framesLeft: state.framesLeft - 1, frame: (state.frame + 1) % HEART_FRAMES.length }));
+      }
     }
   } catch {}
 
