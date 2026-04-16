@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.4.0
+
+- Fix pet hearts: 1s protection window prevents bash-triggered refresh from eating frame 0
+- All 4 heart frames now visible (0→1→2→3)
+
 ## 4.3.0
 
 - Sprite display mode: right-aligned pet in statusline (set `displayMode: "sprite"` in config)

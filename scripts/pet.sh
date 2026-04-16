@@ -1,5 +1,5 @@
 #!/bin/bash
-# Pet your companion — triggers hearts animation for 4 refreshes
+# Pet your companion — triggers hearts animation (4 frames, 1s protection window)
 CONFIG="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/cc-companion/config.json"
 if [ ! -f "$CONFIG" ]; then echo "No companion config found"; exit 1; fi
 

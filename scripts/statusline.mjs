@@ -297,8 +297,8 @@ if (displayMode === 'sprite') {
   ];
 
   // Hearts animation: pet.sh writes { framesLeft, frame, writtenAt } to tmp
-  // 2-second protection window: don't consume frames within 2s of pet to avoid bash-triggered refresh eating frame 0
-  const HEART_PROTECTION_MS = 1500;
+  // 1-second protection window: skip refreshes within 1s of pet to avoid bash-triggered refresh eating frame 0
+  const HEART_PROTECTION_MS = 1000;
   let showHearts = false;
   let heartFrame = 0;
   const HEART_FRAME_STATE = join(tmpdir(), '.cc-companion-heart-frame.json');
