@@ -241,6 +241,14 @@ export function getCustomSalt() {
   } catch { return null; }
 }
 
+// Always returns stored salt, ignoring screensaver mode (for /companion display)
+export function getStoredSalt() {
+  try {
+    const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
+    return config.salt || null;
+  } catch { return null; }
+}
+
 export function isScreensaver() {
   try {
     const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
@@ -277,7 +285,7 @@ function statBar(value) {
 // ============================================================================
 
 export function displayCompanion(userId) {
-  const bones = roll(userId);
+  const bones = roll(userId, getStoredSalt());
   const color = RARITY_ANSI[bones.rarity];
   const sprite = renderSprite(bones, 0);
 
