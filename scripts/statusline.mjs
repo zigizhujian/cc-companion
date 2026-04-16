@@ -296,23 +296,16 @@ if (displayMode === 'sprite') {
     `   ${HEART}  ${HEART} ${HEART}   `,
   ];
 
-  // Hearts animation: pet triggers 4 frames, one per refresh
+  // Hearts animation: pet.sh writes { framesLeft, frame } to tmp, we read and decrement
   let showHearts = false;
   let heartFrame = 0;
   const HEART_FRAME_STATE = join(tmpdir(), '.cc-companion-heart-frame.json');
   try {
-    const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
-    if (cfg.petAt) {
-      let state = { framesLeft: 0, frame: 0, petAt: 0 };
-      try { state = JSON.parse(readFileSync(HEART_FRAME_STATE, 'utf8')); } catch {}
-      if (cfg.petAt > (state.petAt || 0)) {
-        state = { framesLeft: 5, frame: 0, petAt: cfg.petAt };
-      }
-      if (state.framesLeft > 0) {
-        showHearts = true;
-        heartFrame = state.frame;
-        try { writeFileSync(HEART_FRAME_STATE, JSON.stringify({ framesLeft: state.framesLeft - 1, frame: (state.frame + 1) % HEART_FRAMES.length, petAt: state.petAt })); } catch {}
-      }
+    const state = JSON.parse(readFileSync(HEART_FRAME_STATE, 'utf8'));
+    if (state.framesLeft > 0) {
+      showHearts = true;
+      heartFrame = state.frame;
+      writeFileSync(HEART_FRAME_STATE, JSON.stringify({ framesLeft: state.framesLeft - 1, frame: (state.frame + 1) % HEART_FRAMES.length }));
     }
   } catch {}
 

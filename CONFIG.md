@@ -14,7 +14,6 @@ Config file: `~/.claude/plugins/cc-companion/config.json`
 | `screensaverMode` | string | `"random"` | Screensaver pet source. `"random"` = random pets. `"collection"` = cycle through saved collection |
 | `screensaverInterval` | number | `5` | Minutes between pet changes in screensaver mode. `0` = change on every statusline refresh |
 | `collection` | array | `[]` | Saved favorite pets. Each entry: `{ "name", "salt", "species", "rarity" }`. Managed via `/companion:collection` |
-| `petAt` | number | (none) | Timestamp (ms) of last pet action. Set by `/companion:pet`. Triggers hearts animation for 4 refreshes |
 
 ## Settings.json (CC statusline)
 
