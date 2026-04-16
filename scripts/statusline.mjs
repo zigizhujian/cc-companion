@@ -278,6 +278,17 @@ if (displayMode === 'sprite') {
   for (const line of sprite) {
     console.log(BRAILLE.repeat(pad) + color + line + RESET);
   }
+  // Pet name below sprite, centered under sprite
+  let petName = '';
+  try {
+    const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
+    petName = cfg.petName || '';
+  } catch {}
+  if (petName) {
+    const nameLen = visualWidth(petName);
+    const nameOffset = Math.max(0, pad + Math.floor((SPRITE_WIDTH - nameLen) / 2));
+    console.log(BRAILLE.repeat(nameOffset) + color + petName + RESET);
+  }
 } else {
 
 // Full 3-column layout
