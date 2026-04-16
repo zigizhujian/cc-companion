@@ -247,10 +247,45 @@ const col3items = [
   duration ? `${DIM}⏱ ${duration}${RESET}` : '',
 ].filter(Boolean);
 
-// Bottom-align col3
+// displayMode: "full" (default) | "sprite" (right-aligned sprite only)
+let displayMode = 'full';
+try {
+  const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
+  if (cfg.displayMode === 'sprite') displayMode = 'sprite';
+} catch {}
+
+if (displayMode === 'sprite') {
+  // Right-aligned sprite only — detect terminal width via parent PTY
+  const { execSync } = await import('child_process');
+  function getTerminalWidth() {
+    let pid = process.pid;
+    for (let i = 0; i < 5; i++) {
+      try {
+        pid = execSync('ps -o ppid= -p ' + pid + ' 2>/dev/null').toString().trim();
+        if (!pid || pid === '1') break;
+        const ttyName = execSync('ps -o tty= -p ' + pid + ' 2>/dev/null').toString().trim();
+        if (ttyName && ttyName !== '??' && ttyName !== '?') {
+          const cols = execSync('stty size < /dev/' + ttyName + ' 2>/dev/null').toString().trim().split(' ')[1];
+          if (parseInt(cols) > 40) return parseInt(cols);
+        }
+      } catch {}
+    }
+    return 200;
+  }
+  const cols = getTerminalWidth();
+  const BRAILLE = '\u2800';
+  const pad = Math.max(0, cols - SPRITE_WIDTH - 5);
+  for (const line of sprite) {
+    console.log(BRAILLE.repeat(pad) + color + line + RESET);
+  }
+} else {
+
+// Full 3-column layout
 let col3 = [...col3items];
 while (col3.length < totalRows) col3.unshift('');
 
 for (let i = 0; i < totalRows; i++) {
   console.log(`${padEnd(col1[i], COL1_WIDTH)}  ${col2[i] || ' '.repeat(COL2_WIDTH)}  ${col3[i] || ''}`);
 }
+
+} // end displayMode else
