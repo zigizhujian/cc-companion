@@ -1,21 +1,14 @@
 ---
 description: "Pet your companion! Shows hearts animation"
-allowed-tools: Bash(bun:*), Read, Edit
+allowed-tools: Bash
 ---
 
 ## Your task
 
-Pet the user's companion! Write the current timestamp to `~/.claude/plugins/cc-companion/config.json` as `petAt`:
-
+Run the pet script:
 ```bash
-python3 -c "
-import json, time
-p = '$HOME/.claude/plugins/cc-companion/config.json'
-d = json.load(open(p))
-d['petAt'] = int(time.time() * 1000)
-json.dump(d, open(p, 'w'), indent=2)
-print('petted!')
-"
+PLUGIN_DIR=$(ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '{ print $(NF-1) "\t" $0 }' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-)
+bash "${PLUGIN_DIR}scripts/pet.sh"
 ```
 
-Then say something like "petted [name]!" with a heart emoji.
+Do not add any extra commentary. The script output speaks for itself.

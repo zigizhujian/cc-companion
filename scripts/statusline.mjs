@@ -275,20 +275,29 @@ if (displayMode === 'sprite') {
   const cols = getTerminalWidth();
   const BRAILLE = '\u2800';
   const pad = Math.max(0, cols - SPRITE_WIDTH - 5);
-  const RED = '\x1b[31m';
+  const RED = '\x1b[91m'; // bright red
+  const HEART = '\u2764';
 
-  // Hearts animation: show for 5 seconds after petAt
+  // Hearts animation: show for 5 seconds after petAt, cycle through frames
   let showHearts = false;
   try {
     const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
     if (cfg.petAt && (Date.now() - cfg.petAt) < 5000) showHearts = true;
   } catch {}
 
+  const HEART_FRAMES = [
+    `${HEART}   ${HEART}    ${HEART}`,
+    `  ${HEART}  ${HEART}   ${HEART} `,
+    ` ${HEART}   ${HEART}  ${HEART}  `,
+    `${HEART}  ${HEART}      ${HEART}`,
+  ];
+
   if (showHearts) {
-    const HEART = '\u2764';
-    const heartsLine = `${HEART}   ${HEART}    ${HEART}`;
-    const heartPad = Math.max(0, pad + Math.floor((SPRITE_WIDTH - 12) / 2));
-    console.log(BRAILLE.repeat(heartPad) + RED + heartsLine + RESET);
+    const heartFrame = HEART_FRAMES[Math.floor(Date.now() / 500) % HEART_FRAMES.length];
+    console.log(BRAILLE.repeat(pad) + RED + heartFrame + RESET);
+  } else {
+    // Empty line to keep sprite position stable
+    console.log(BRAILLE.repeat(pad) + '            ');
   }
 
   for (const line of sprite) {
