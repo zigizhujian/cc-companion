@@ -287,11 +287,13 @@ if (displayMode === 'sprite') {
   const pad = Math.max(0, cols - contentWidth - RIGHT_MARGIN);
   const RED = '\x1b[91m'; // bright red
   const HEART = '\u2764';
+  // 3 hearts, 12 chars total, irregular spacing for natural floating feel
+  // f0: pos 1,7,9; f1: pos 2,6,10; f2: pos 1,4,9; f3: pos 3,6,8
   const HEART_FRAMES = [
-    `${HEART}   ${HEART}    ${HEART}`,
-    `  ${HEART}  ${HEART}   ${HEART} `,
-    ` ${HEART}   ${HEART}  ${HEART}  `,
-    `${HEART}  ${HEART}      ${HEART}`,
+    ` ${HEART}     ${HEART} ${HEART}  `,
+    `  ${HEART}   ${HEART}   ${HEART} `,
+    ` ${HEART}  ${HEART}    ${HEART}  `,
+    `   ${HEART}  ${HEART} ${HEART}   `,
   ];
 
   // Hearts animation: pet triggers 4 frames, one per refresh
@@ -314,8 +316,10 @@ if (displayMode === 'sprite') {
     }
   } catch {}
 
+  const spriteCenterOffset = Math.floor((contentWidth - SPRITE_WIDTH) / 2);
+
   if (showHearts) {
-    console.log(BRAILLE.repeat(pad) + RED + HEART_FRAMES[heartFrame] + RESET);
+    console.log(BRAILLE.repeat(pad + spriteCenterOffset) + RED + HEART_FRAMES[heartFrame] + RESET);
   } else if (petName) {
     const nameOffset = Math.max(0, pad + Math.floor((contentWidth - nameLen) / 2));
     console.log(BRAILLE.repeat(nameOffset) + color + petName + RESET);
@@ -324,7 +328,7 @@ if (displayMode === 'sprite') {
   }
 
   for (const line of sprite) {
-    console.log(BRAILLE.repeat(pad) + color + line + RESET);
+    console.log(BRAILLE.repeat(pad + spriteCenterOffset) + color + line + RESET);
   }
 } else {
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.3.0
+
+- Sprite display mode: right-aligned pet in statusline (set `displayMode: "sprite"` in config)
+- Terminal width detection via parent PTY for accurate right-alignment
+- Pet name displayed above sprite, centered
+- `/companion:companion-pet` command + bash script for hearts animation (4 frames)
+- Hearts and sprite auto-center when pet name is wider than sprite
+- `/companion` now asks to name your pet on first use
+- Pet naming via natural language ("rename my pet to xxx")
+
 ## 4.2.0
 
 - Fix: unified 6-row layout (species + 5-line sprite) — frame 2 effects (smoke, spores, antenna) no longer get clipped

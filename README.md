@@ -24,11 +24,12 @@ Your coding buddy pet for Claude Code. Each user gets a unique deterministic com
 
 | Command | Description |
 |---------|-------------|
-| `/cc-companion:companion` | Show your companion pet (ASCII art, stats, rarity) |
+| `/cc-companion:companion` | Show your companion pet (ASCII art, stats, rarity). Names your pet on first use |
 | `/cc-companion:companion-customize` | Choose your own species, rarity, eyes, hat, and stats |
 | `/cc-companion:companion-statusline` | Toggle companion statusline on/off |
 | `/cc-companion:companion-screensaver` | Toggle screensaver mode on/off |
 | `/cc-companion:companion-collection` | Save, list, switch, or remove favorite pets |
+| `/cc-companion:companion-pet` | Pet your companion — shows floating hearts animation |
 
 ## Statusline
 
@@ -48,6 +49,23 @@ Set `animationMode` in `~/.claude/plugins/cc-companion/config.json`:
 
 - **`"classic"`** (default) — CC's original time-driven idle sequence `[0,0,0,0,1,0,0,0,-1,0,0,2,0,0,0]` at 500ms/frame. Mostly idle, with occasional fidgets and blinks — feels alive. One full cycle per minute at `refreshInterval: 4`.
 - **`"sequential"`** — frame advances on every refresh: 0→1→2→blink→0. Mechanical but predictable.
+
+### Display Modes
+
+Set `displayMode` in `~/.claude/plugins/cc-companion/config.json`:
+
+- **`"full"`** (default) — 3-column layout: sprite + stats + session info
+- **`"sprite"`** — right-aligned pet only, with name above and hearts animation. Minimal and clean, closest to the original CC buddy UI
+
+### Pet Name
+
+Your companion can have a custom name. `/cc-companion:companion` will ask you on first use. To rename anytime, just tell Claude: "rename my pet to xxx".
+
+The name displays above your pet in sprite mode.
+
+### Pet Animation
+
+Run `/cc-companion:companion-pet` or `~/.claude/plugins/cache/cc-companion/cc-companion/*/scripts/pet.sh` to pet your companion. Floating hearts appear for 4 refreshes then fade away.
 
 ## Screensaver Mode
 
