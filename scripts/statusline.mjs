@@ -275,7 +275,15 @@ if (displayMode === 'sprite') {
   const cols = getTerminalWidth();
   const BRAILLE = '\u2800';
   const RIGHT_MARGIN = 5;
-  const contentWidth = Math.max(SPRITE_WIDTH, 12); // minimum content area
+
+  // Read pet name early to calculate content width
+  let petName = '';
+  try {
+    const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
+    petName = cfg.petName || '';
+  } catch {}
+  const nameLen = petName ? visualWidth(petName) : 0;
+  const contentWidth = Math.max(SPRITE_WIDTH, nameLen);
   const pad = Math.max(0, cols - contentWidth - RIGHT_MARGIN);
   const RED = '\x1b[91m'; // bright red
   const HEART = '\u2764';
@@ -306,29 +314,9 @@ if (displayMode === 'sprite') {
     }
   } catch {}
 
-  // First line: hearts (when petted) or name (normal)
-  let petName = '';
-  try {
-    const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
-    petName = cfg.petName || '';
-  } catch {}
-  // Truncate name if wider than content area
-  if (petName && visualWidth(petName) > contentWidth) {
-    let truncated = '';
-    let w = 0;
-    for (const ch of petName) {
-      const cw = charWidth(ch.codePointAt(0));
-      if (w + cw > contentWidth - 1) break;
-      truncated += ch;
-      w += cw;
-    }
-    petName = truncated + '\u2026';
-  }
-
   if (showHearts) {
     console.log(BRAILLE.repeat(pad) + RED + HEART_FRAMES[heartFrame] + RESET);
   } else if (petName) {
-    const nameLen = visualWidth(petName);
     const nameOffset = Math.max(0, pad + Math.floor((contentWidth - nameLen) / 2));
     console.log(BRAILLE.repeat(nameOffset) + color + petName + RESET);
   } else {
