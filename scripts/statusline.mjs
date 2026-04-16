@@ -303,8 +303,8 @@ if (displayMode === 'sprite') {
     const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
     petName = cfg.petName || '';
   } catch {}
-  const nameLen = petName ? visualWidth(petName) : 0;
-  const contentWidth = Math.max(SPRITE_WIDTH, nameLen);
+  const fullNameLen = petName ? visualWidth((bones.shiny ? '\u2728 ' : '') + petName) : 0;
+  const contentWidth = Math.max(SPRITE_WIDTH, fullNameLen);
   const pad = Math.max(0, cols - contentWidth - RIGHT_MARGIN);
   const RED = '\x1b[91m'; // bright red
   const HEART = '\u2764';
@@ -342,8 +342,10 @@ if (displayMode === 'sprite') {
   if (showHearts) {
     console.log(BRAILLE.repeat(pad + spriteCenterOffset) + RED + HEART_FRAMES[heartFrame] + RESET);
   } else if (petName) {
-    const nameOffset = Math.max(0, pad + Math.floor((contentWidth - nameLen) / 2));
-    console.log(BRAILLE.repeat(nameOffset) + color + petName + RESET);
+    const displayName = bones.shiny ? '\u2728 ' + petName : petName;
+    const displayNameLen = visualWidth(displayName);
+    const nameOffset = Math.max(0, pad + Math.floor((contentWidth - displayNameLen) / 2));
+    console.log(BRAILLE.repeat(nameOffset) + color + displayName + RESET);
   } else {
     console.log(BRAILLE.repeat(pad) + ' '.repeat(contentWidth));
   }
@@ -386,7 +388,8 @@ if (displayMode === 'sprite') {
     blink ? line.replaceAll(rightBones.eye, '-') : line
   );
   while (rightSprite.length < 5) rightSprite.unshift('            ');
-  const rightNameLen = rightPetName ? visualWidth(rightPetName) : 0;
+  const rightFullName = rightPetName ? (rightBones.shiny ? '\u2728 ' + rightPetName : rightPetName) : '';
+  const rightNameLen = rightFullName ? visualWidth(rightFullName) : 0;
   const rightContentWidth = Math.max(SPRITE_WIDTH, rightNameLen);
   const rightSpriteCenterOffset = Math.floor((rightContentWidth - SPRITE_WIDTH) / 2);
 
@@ -420,9 +423,9 @@ if (displayMode === 'sprite') {
   const rightRows = [];
   if (rightShowHearts) {
     rightRows.push(BRAILLE.repeat(rightSpriteCenterOffset) + RED + HEART_FRAMES[rightHeartFrame] + RESET);
-  } else if (rightPetName) {
+  } else if (rightFullName) {
     const nameOffset = Math.floor((rightContentWidth - rightNameLen) / 2);
-    rightRows.push(BRAILLE.repeat(nameOffset) + rightColor + rightPetName + RESET);
+    rightRows.push(BRAILLE.repeat(nameOffset) + rightColor + rightFullName + RESET);
   } else {
     rightRows.push(' '.repeat(rightContentWidth));
   }
