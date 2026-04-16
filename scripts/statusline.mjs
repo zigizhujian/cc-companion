@@ -195,14 +195,18 @@ let sprite = renderSprite(bones, frame).map(line =>
 while (sprite.length < 5) sprite.unshift('            ');
 
 const SPRITE_WIDTH = 12;
-const speciesVisible = visualWidth(stripAnsi(speciesLine));
-const COL1_WIDTH = Math.max(SPRITE_WIDTH, speciesVisible);
-const spritePad = ' '.repeat(COL1_WIDTH - SPRITE_WIDTH);
+const SPRITE_PADDING = 2; // spaces on each side of sprite
+const COL1_WIDTH = SPRITE_WIDTH + SPRITE_PADDING * 2; // fixed total col1 width
 
 // Always 6 rows: species line + 5 sprite lines
+// Center species line if shorter than COL1_WIDTH
+const speciesVisible = visualWidth(stripAnsi(speciesLine));
+const speciesCenterPad = speciesVisible < COL1_WIDTH
+  ? '\u2800'.repeat(Math.floor((COL1_WIDTH - speciesVisible) / 2))
+  : '';
 const col1 = [
-  padEnd(speciesLine, COL1_WIDTH),
-  ...sprite.map(line => color + line + RESET + spritePad),
+  speciesCenterPad + speciesLine,
+  ...sprite.map(line => color + ' '.repeat(SPRITE_PADDING) + line + RESET + ' '.repeat(SPRITE_PADDING)),
 ];
 const totalRows = col1.length;
 
@@ -219,6 +223,22 @@ let col2 = STAT_NAMES.map(statLine);
 while (col2.length < totalRows) col2.unshift(' '.repeat(COL2_WIDTH));
 
 // Col 3: spread info across rows, bottom-align
+const COL3_WIDTH = 40;
+
+function truncateCol3(s) {
+  const stripped = stripAnsi(s);
+  const vw = visualWidth(stripped);
+  if (vw <= COL3_WIDTH) return s;
+  // Truncate to fit + ellipsis
+  let out = '', w = 0;
+  for (const ch of stripped) {
+    const cw = charWidth(ch.codePointAt(0));
+    if (w + cw > COL3_WIDTH - 1) break;
+    out += ch; w += cw;
+  }
+  return `${DIM}${out}\u2026${RESET}`;
+}
+
 const model = stdin?.model?.display_name ?? '';
 const pct = stdin?.context_window?.used_percentage != null ? Math.round(stdin.context_window.used_percentage) : null;
 const session = stdin?.session_name ?? '';
@@ -238,13 +258,13 @@ function ctxBar(pct) {
   return `${DIM}ctx${RESET} ${bar}${String(pct).padStart(3)}%`;
 }
 
-// Build col3 items — each on its own line
+// Build col3 items — each on its own line, truncated to COL3_WIDTH
 const col3items = [
-  model ? `${DIM}${model}${RESET}` : '',
-  version ? `${DIM}${version}${RESET}` : '',
+  model ? truncateCol3(`${DIM}${model}${RESET}`) : '',
+  version ? truncateCol3(`${DIM}${version}${RESET}`) : '',
   pct != null ? ctxBar(pct) : '',
   costLine,
-  duration ? `${DIM}⏱ ${duration}${RESET}` : '',
+  duration ? truncateCol3(`${DIM}⏱ ${duration}${RESET}`) : '',
 ].filter(Boolean);
 
 // displayMode: "full" (default) | "sprite" (right-aligned sprite only)
