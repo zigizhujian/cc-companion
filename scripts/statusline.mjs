@@ -277,14 +277,6 @@ if (displayMode === 'sprite') {
   const pad = Math.max(0, cols - SPRITE_WIDTH - 5);
   const RED = '\x1b[91m'; // bright red
   const HEART = '\u2764';
-
-  // Hearts animation: show for 5 seconds after petAt, cycle through frames
-  let showHearts = false;
-  try {
-    const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
-    if (cfg.petAt && (Date.now() - cfg.petAt) < 5000) showHearts = true;
-  } catch {}
-
   const HEART_FRAMES = [
     `${HEART}   ${HEART}    ${HEART}`,
     `  ${HEART}  ${HEART}   ${HEART} `,
@@ -292,9 +284,28 @@ if (displayMode === 'sprite') {
     `${HEART}  ${HEART}      ${HEART}`,
   ];
 
+  // Hearts animation: pet triggers 4 frames, one per refresh
+  let showHearts = false;
+  let heartFrame = 0;
+  const HEART_FRAME_STATE = join(tmpdir(), '.cc-companion-heart-frame.json');
+  try {
+    const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
+    if (cfg.petAt) {
+      let state = { framesLeft: 0, frame: 0, petAt: 0 };
+      try { state = JSON.parse(readFileSync(HEART_FRAME_STATE, 'utf8')); } catch {}
+      if (cfg.petAt > (state.petAt || 0)) {
+        state = { framesLeft: 4, frame: 0, petAt: cfg.petAt };
+      }
+      if (state.framesLeft > 0) {
+        showHearts = true;
+        heartFrame = state.frame;
+        try { writeFileSync(HEART_FRAME_STATE, JSON.stringify({ framesLeft: state.framesLeft - 1, frame: (state.frame + 1) % HEART_FRAMES.length, petAt: state.petAt })); } catch {}
+      }
+    }
+  } catch {}
+
   if (showHearts) {
-    const heartFrame = HEART_FRAMES[Math.floor(Date.now() / 500) % HEART_FRAMES.length];
-    console.log(BRAILLE.repeat(pad) + RED + heartFrame + RESET);
+    console.log(BRAILLE.repeat(pad) + RED + HEART_FRAMES[heartFrame] + RESET);
   } else {
     // Empty line to keep sprite position stable
     console.log(BRAILLE.repeat(pad) + '            ');
