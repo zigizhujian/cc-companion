@@ -2,7 +2,7 @@
 
 // CC Companion Statusline — 3-column layout: species+sprite | stats | info
 
-import { roll, renderSprite, getUserId, RARITY_STARS, STAT_NAMES, isScreensaver, SALT_LENGTH } from './companion.mjs';
+import { roll, renderSprite, getUserId, RARITY_STARS, STAT_NAMES, isScreensaver, SALT_LENGTH, getStoredSalt } from './companion.mjs';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { tmpdir, homedir } from 'os';
@@ -211,7 +211,7 @@ const col1 = [
 const totalRows = col1.length;
 
 // Col 2: 5 stats, bottom-align
-const COL2_WIDTH = 27;
+const COL2_WIDTH = 24;
 function statLine(name) {
   const v = bones.stats[name];
   const filled = Math.round(v / 10);
@@ -267,11 +267,12 @@ const col3items = [
   duration ? truncateCol3(`${DIM}⏱ ${duration}${RESET}`) : '',
 ].filter(Boolean);
 
-// displayMode: "full" (default) | "sprite" (right-aligned sprite only)
+// displayMode: "full" (default) | "sprite" (right-aligned sprite only) | "combined" (left screensaver + right fixed)
 let displayMode = 'full';
 try {
   const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
   if (cfg.displayMode === 'sprite') displayMode = 'sprite';
+  else if (cfg.displayMode === 'combined') displayMode = 'combined';
 } catch {}
 
 if (displayMode === 'sprite') {
@@ -350,6 +351,141 @@ if (displayMode === 'sprite') {
   for (const line of sprite) {
     console.log(BRAILLE.repeat(pad + spriteCenterOffset) + color + line + RESET);
   }
+} else if (displayMode === 'combined') {
+  // Combined mode: left = screensaver pet with stats, right = fixed pet (same as sprite mode)
+  // Right side uses exact same logic as sprite mode
+  const { execSync } = await import('child_process');
+  function getTerminalWidthCombined() {
+    let pid = process.pid;
+    for (let i = 0; i < 5; i++) {
+      try {
+        pid = execSync('ps -o ppid= -p ' + pid + ' 2>/dev/null').toString().trim();
+        if (!pid || pid === '1') break;
+        const ttyName = execSync('ps -o tty= -p ' + pid + ' 2>/dev/null').toString().trim();
+        if (ttyName && ttyName !== '??' && ttyName !== '?') {
+          const cols = execSync('stty size < /dev/' + ttyName + ' 2>/dev/null').toString().trim().split(' ')[1];
+          if (parseInt(cols) > 40) return parseInt(cols);
+        }
+      } catch {}
+    }
+    return 200;
+  }
+  const cols = getTerminalWidthCombined();
+  const BRAILLE = '\u2800';
+  const RIGHT_MARGIN = 5;
+
+  // === RIGHT SIDE: exact copy of sprite mode logic ===
+  let rightPetName = '';
+  try {
+    const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
+    rightPetName = cfg.petName || '';
+  } catch {}
+  const rightBones = roll(userId, getStoredSalt());
+  const rightColor = RARITY_ANSI[rightBones.rarity];
+  let rightSprite = renderSprite(rightBones, frame).map(line =>
+    blink ? line.replaceAll(rightBones.eye, '-') : line
+  );
+  while (rightSprite.length < 5) rightSprite.unshift('            ');
+  const rightNameLen = rightPetName ? visualWidth(rightPetName) : 0;
+  const rightContentWidth = Math.max(SPRITE_WIDTH, rightNameLen);
+  const rightSpriteCenterOffset = Math.floor((rightContentWidth - SPRITE_WIDTH) / 2);
+
+  // Right first row: hearts or petName (same logic as sprite mode)
+  const RED = '\x1b[91m';
+  const HEART = '\u2764';
+  const HEART_FRAMES = [
+    ` ${HEART}     ${HEART} ${HEART}  `,
+    `  ${HEART}   ${HEART}   ${HEART} `,
+    ` ${HEART}  ${HEART}    ${HEART}  `,
+    `   ${HEART}  ${HEART} ${HEART}   `,
+  ];
+  const HEART_PROTECTION_MS = 1000;
+  let rightShowHearts = false;
+  let rightHeartFrame = 0;
+  const HEART_FRAME_STATE = join(tmpdir(), '.cc-companion-heart-frame.json');
+  try {
+    const state = JSON.parse(readFileSync(HEART_FRAME_STATE, 'utf8'));
+    if (state.framesLeft > 0) {
+      if (state.writtenAt && (Date.now() - state.writtenAt) < HEART_PROTECTION_MS) {
+        // skip
+      } else {
+        rightShowHearts = true;
+        rightHeartFrame = state.frame;
+        writeFileSync(HEART_FRAME_STATE, JSON.stringify({ framesLeft: state.framesLeft - 1, frame: (state.frame + 1) % HEART_FRAMES.length }));
+      }
+    }
+  } catch {}
+
+  // Build right rows (6 lines): first row + 5 sprite lines
+  const rightRows = [];
+  if (rightShowHearts) {
+    rightRows.push(BRAILLE.repeat(rightSpriteCenterOffset) + RED + HEART_FRAMES[rightHeartFrame] + RESET);
+  } else if (rightPetName) {
+    const nameOffset = Math.floor((rightContentWidth - rightNameLen) / 2);
+    rightRows.push(BRAILLE.repeat(nameOffset) + rightColor + rightPetName + RESET);
+  } else {
+    rightRows.push(' '.repeat(rightContentWidth));
+  }
+  for (const line of rightSprite) {
+    rightRows.push(BRAILLE.repeat(rightSpriteCenterOffset) + rightColor + line + RESET);
+  }
+
+  // === LEFT SIDE: screensaver pet + stats ===
+  const leftBones = roll(userId, getScreensaverSalt());
+  const leftColor = RARITY_ANSI[leftBones.rarity];
+  let leftSprite = renderSprite(leftBones, frame).map(line =>
+    blink ? line.replaceAll(leftBones.eye, '-') : line
+  );
+  while (leftSprite.length < 5) leftSprite.unshift('            ');
+  const leftShiny = leftBones.shiny ? ' \u2728' : '';
+  const leftSpeciesLine = `${leftColor}${RARITY_STARS[leftBones.rarity]}  ${BOLD}${leftBones.species.toUpperCase()}${RESET}${leftShiny}`;
+  const leftSpeciesVisible = visualWidth(stripAnsi(leftSpeciesLine));
+  const leftCenterPad = leftSpeciesVisible < COL1_WIDTH ? BRAILLE.repeat(Math.floor((COL1_WIDTH - leftSpeciesVisible) / 2)) : '';
+
+  // Left rows (6 lines): species + 5 sprite lines — use Braille Blank for padding
+  const BPAD = '\u2800';
+  const leftRows = [
+    leftCenterPad + leftSpeciesLine,
+    ...leftSprite.map(l => leftColor + BPAD.repeat(SPRITE_PADDING) + l + RESET + BPAD.repeat(SPRITE_PADDING)),
+  ];
+
+  // Stats from left pet, bottom-align to 6 rows
+  function statLineCombined(name) {
+    const v = leftBones.stats[name];
+    const filled = Math.round(v / 10);
+    const statColor = v >= 70 ? '\x1b[36m' : v >= 40 ? '\x1b[38;5;186m' : '\x1b[38;5;174m';
+    const bar = statColor + '\u2588'.repeat(filled) + DIM + '\u2591'.repeat(10 - filled) + RESET;
+    return `${DIM}${name.padEnd(10)}${RESET}${bar} ${statColor}${String(v).padStart(3)}${RESET}`;
+  }
+  let midStats = STAT_NAMES.map(statLineCombined);
+  while (midStats.length < 6) midStats.unshift(' '.repeat(COL2_WIDTH));
+
+  // col3: session info, bottom-align to 6 rows
+  let col3Combined = [...col3items];
+  while (col3Combined.length < 6) col3Combined.unshift('');
+
+  // === OUTPUT: left + stats + col3 + gap + right ===
+  const leftTotalWidth = COL1_WIDTH + 2 + COL2_WIDTH + 2 + COL3_WIDTH; // col1 + spacing + col2 + spacing + col3
+  const midGap = Math.max(0, cols - leftTotalWidth - rightContentWidth - RIGHT_MARGIN);
+
+  function padEndBraille(s, width) {
+    const visible = visualWidth(stripAnsi(s));
+    return s + '\u2800'.repeat(Math.max(0, width - visible));
+  }
+
+  // Row 0 (species/name) may overflow COL1_WIDTH — adjust midGap to keep right side fixed
+  const leftRow0Visible = visualWidth(stripAnsi(leftRows[0] || ''));
+  const leftRow0Overflow = Math.max(0, leftRow0Visible - COL1_WIDTH);
+
+  for (let i = 0; i < 6; i++) {
+    const left = padEndBraille(leftRows[i] || '', COL1_WIDTH);
+    const mid = padEndBraille(midStats[i] || '', COL2_WIDTH);
+    const info = padEndBraille(col3Combined[i] || '', COL3_WIDTH);
+    const right = rightRows[i] || '';
+    const gap = i === 0 ? Math.max(0, midGap - leftRow0Overflow) : midGap;
+    console.log(`${left}\u2800\u2800${mid}\u2800\u2800${info}${BRAILLE.repeat(gap)}${right}`);
+  }
+
 } else {
 
 // Full 3-column layout

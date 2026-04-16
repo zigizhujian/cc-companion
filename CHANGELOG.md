@@ -1,5 +1,14 @@
 # Changelog
 
+## 5.0.0
+
+- Combined display mode: left screensaver pet + stats + session info, right fixed pet
+- Terminal width detection via parent PTY for right-aligned positioning
+- Braille Blank padding throughout combined mode to resist CC trim
+- Dynamic first-row overflow compensation for long species names
+- Pet hearts animation works in combined mode
+- COL2_WIDTH corrected to 24 (actual stats width)
+
 ## 4.4.0
 
 - Fix pet hearts: 1s protection window prevents bash-triggered refresh from eating frame 0
