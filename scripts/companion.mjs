@@ -35,7 +35,7 @@ const RARITY_ANSI = {
 const RESET = '\x1b[0m';
 const BOLD = '\x1b[1m';
 const DIM = '\x1b[2m';
-const SHINY = '\x1b[33;1m'; // bright yellow for shiny
+const SHINY = '\x1b[38;5;220m'; // gold for shiny
 
 // ============================================================================
 // PRNG (from companion.ts)
