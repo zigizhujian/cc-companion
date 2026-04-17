@@ -87,15 +87,62 @@ Run `/cc-companion:companion-pet` to pet your companion. Floating hearts appear 
 
 `/cc-companion:companion-customize` walks you through choosing species, rarity, eyes, hat, and shiny. The plugin brute-force searches for a matching salt using `Bun.hash` — usually under 2 seconds.
 
+Once you have a pet you like, save it to your collection with `/cc-companion:companion-collection`.
+
 ---
 
 ## Reference
 
 ### Species
 
+18 unique species, each with 3-frame animation:
+
 ```
-duck · goose · blob · cat · dragon · octopus · owl · penguin · turtle
-snail · ghost · axolotl · capybara · cactus · robot · rabbit · mushroom · chonk
+DUCK              GOOSE             BLOB
+    __                (·>            .----.
+  <(· )___            ||           ( ·  · )
+   (  ._>           _(__)_         (      )
+    `--´             ^^^^           `----´
+
+CAT               DRAGON            OCTOPUS
+   /\_/\                             .----.
+  ( ·   ·)        /^\  /^\          ( ·  · )
+  (  ω  )        <  ·  ·  >         (______)
+  (")_(")         (   ~~   )        /\/\/\/\
+                   `-vvvv-´
+
+OWL               PENGUIN           TURTLE
+   /\  /\            .---.           _,--._
+  ((·)(·))          (·>·)           ( ·  · )
+  (  ><  )         /(   )\         /[______]\
+   `----´           `---´           ``    ``
+
+SNAIL             GHOST             AXOLOTL
+ ·    .--.           .----.        }~(______)~{
+  \  ( @ )          / ·  · \      }~(· .. ·)~{
+   \_`--´           |      |        ( .--. )
+  ~~~~~~~           ~`~``~`~        (_/  \_)
+
+CAPYBARA          CACTUS            ROBOT
+   n______n        n  ____  n         .[||].
+  ( ·    · )      | |·  ·| |        [ ·  · ]
+  (   oo   )      |_|    |_|        [ ==== ]
+   `------´          |    |          `------´
+
+RABBIT            MUSHROOM          CHONK
+   (\__/)         .-o-OO-o-.        /\    /\
+  ( ·  · )       (__________)      ( ·    · )
+ =(  ..  )=         |·  ·|         (   ..   )
+  (")__(")          |____|          `------´
+```
+
+### Hats
+
+Available for uncommon and above:
+
+```
+CROWN      TOPHAT     PROPELLER  HALO       WIZARD     BEANIE     TINYDUCK
+ \^^^/       [___]       -+-      (   )       /^\        (___)       ,>
 ```
 
 ### Rarity
@@ -107,6 +154,8 @@ snail · ghost · axolotl · capybara · cactus · robot · rabbit · mushroom �
 | Rare      | ★★★   | 10%    | Yes  | 1%     |
 | Epic      | ★★★★  | 4%     | Yes  | 1%     |
 | Legendary | ★★★★★ | 1%     | Yes  | 1%     |
+
+**Shiny** — 1% chance on top of rarity. Marked with ✨ in the statusline. Any rarity can be shiny.
 
 ### Stats
 
