@@ -34,21 +34,23 @@ Each Claude Code user gets a **unique deterministic companion** based on their a
 
 Set `displayMode` in `~/.claude/plugins/cc-companion/config.json`.
 
-### `"combined"` — screensaver pet on the left, your pet on the right
+### `"combined"` — screensaver pet (random or collection) on the left, your pet on the right, both animated
 
 ![combined — collection](assets/combined%20collection.png)
 ![combined — random](assets/combined%20random.png)
 
-### `"hud"` — animated sprite + stats + session info
+### `"hud"` — animated sprite or screensaver pet + stats + session info
 
 ![hud — collection](assets/hud%20collection.png)
 ![hud — random](assets/hud%20random.png)
 
-### `"sprite"` — minimal right-aligned pet
+### `"sprite"` — minimal right-aligned pet (animated sprite or screensaver pet)
 
 Your companion tucked in the corner with name above. Closest to the original CC buddy UI.
 
 ![sprite — own pet](assets/sprite%20own.png)
+![sprite — random screensaver](assets/sprite%20random.png)
+![sprite — collection screensaver](assets/sprite%20collection.png)
 
 ---
 
@@ -62,9 +64,6 @@ Run `/cc-companion:companion-screensaver` to toggle. Choose a refresh interval:
 - **5** (default) — new pet every 5 minutes
 
 Set `screensaverMode` to `"random"` for fully random pets, or `"collection"` to cycle through your saved favorites.
-
-![sprite — random screensaver](assets/sprite%20random.png)
-![sprite — collection screensaver](assets/sprite%20collection.png)
 
 ---
 
