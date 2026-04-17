@@ -54,6 +54,22 @@ Your companion tucked in the corner with name above. Closest to the original CC 
 
 ---
 
+## Customization
+
+`/cc-companion:companion-customize` walks you through choosing species, rarity, eyes, hat, and shiny. The plugin brute-force searches for a matching salt using `Bun.hash` — usually under 2 seconds.
+
+Once you have a pet you like, save it to your collection with `/cc-companion:companion-collection`.
+
+---
+
+## Pet
+
+Run `/cc-companion:companion-pet` to pet your companion. Floating hearts appear for a few seconds.
+
+![sprite — hearts animation](assets/sprite%20pet.png)
+
+---
+
 ## Screensaver
 
 Turn your statusline into a **pet parade** — a new companion appears periodically, like opening blind boxes while you code.
@@ -72,22 +88,6 @@ Set `screensaverMode` to `"random"` for fully random pets, or `"collection"` to 
 Save your favorite pets and switch between them anytime.
 
 Run `/cc-companion:companion-collection`: **save** · **list** · **switch** · **remove**
-
----
-
-## Pet
-
-Run `/cc-companion:companion-pet` to pet your companion. Floating hearts appear for a few seconds.
-
-![sprite — hearts animation](assets/sprite%20pet.png)
-
----
-
-## Customization
-
-`/cc-companion:companion-customize` walks you through choosing species, rarity, eyes, hat, and shiny. The plugin brute-force searches for a matching salt using `Bun.hash` — usually under 2 seconds.
-
-Once you have a pet you like, save it to your collection with `/cc-companion:companion-collection`.
 
 ---
 
