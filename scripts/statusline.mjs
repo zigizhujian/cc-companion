@@ -461,15 +461,15 @@ if (displayMode === 'sprite') {
     const bar = statColor + '\u2588'.repeat(filled) + DIM + '\u2591'.repeat(10 - filled) + RESET;
     return `${DIM}${name.padEnd(10)}${RESET}${bar} ${statColor}${String(v).padStart(3)}${RESET}`;
   }
-  let midStats = STAT_NAMES.map(statLineCombined);
-  while (midStats.length < 6) midStats.unshift(' '.repeat(COL2_WIDTH));
+  let midStats = STAT_NAMES.map(n => statLineCombined(n) + '\u2800\u2800');
+  while (midStats.length < 6) midStats.unshift(' '.repeat(COL2_WIDTH) + '\u2800\u2800');
 
   // col3: session info, bottom-align to 6 rows
   let col3Combined = [...col3items];
   while (col3Combined.length < 6) col3Combined.unshift('');
 
   // === OUTPUT: left + stats + col3 + gap + right ===
-  const leftTotalWidth = COL1_WIDTH + 2 + COL2_WIDTH + 2 + COL3_WIDTH; // col1 + spacing + col2 + spacing + col3
+  const leftTotalWidth = COL1_WIDTH + 2 + (COL2_WIDTH + 2) + 2 + COL3_WIDTH; // col1 + spacing + col2+padding + spacing + col3
   const midGap = Math.max(0, cols - leftTotalWidth - rightContentWidth - RIGHT_MARGIN);
 
   function padEndBraille(s, width) {
@@ -483,7 +483,7 @@ if (displayMode === 'sprite') {
 
   for (let i = 0; i < 6; i++) {
     const left = padEndBraille(leftRows[i] || '', COL1_WIDTH);
-    const mid = padEndBraille(midStats[i] || '', COL2_WIDTH);
+    const mid = padEndBraille(midStats[i] || '', COL2_WIDTH + 2);
     const info = padEndBraille(col3Combined[i] || '', COL3_WIDTH);
     const right = rightRows[i] || '';
     const gap = i === 0 ? Math.max(0, midGap - leftRow0Overflow) : midGap;
