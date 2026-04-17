@@ -54,7 +54,7 @@ Set `animationMode` in `~/.claude/plugins/cc-companion/config.json`:
 
 Set `displayMode` in `~/.claude/plugins/cc-companion/config.json`:
 
-- **`"full"`** (default) — 3-column layout: sprite + stats + session info
+- **`"hud"`** (default) — 3-column layout: sprite + stats + session info
 - **`"sprite"`** — right-aligned pet only, with name above and hearts animation. Minimal and clean, closest to the original CC buddy UI
 
 ### Pet Name

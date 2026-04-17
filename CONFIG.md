@@ -8,7 +8,7 @@ Config file: `~/.claude/plugins/cc-companion/config.json`
 |-----------|------|---------|-------------|
 | `salt` | string | (none) | Custom salt for pet generation. Set by `/companion:customize`. If absent, uses default salt `friend-2026-401` |
 | `petName` | string | (none) | Your pet's display name. Shows above sprite in sprite mode. Set via `/companion` on first use or ask Claude to rename |
-| `displayMode` | string | `"full"` | Statusline layout. `"full"` = 3-column (sprite + stats + info). `"sprite"` = right-aligned pet only |
+| `displayMode` | string | `"hud"` | Statusline layout. `"hud"` = 3-column (sprite + stats + info). `"sprite"` = right-aligned pet only |
 | `animationMode` | string | `"classic"` | Sprite animation style. `"classic"` = CC's original idle sequence (time-driven, natural). `"sequential"` = frame advances every refresh (0→1→2→blink) |
 | `screensaver` | boolean | `false` | Enable screensaver mode. Statusline shows rotating pets instead of your fixed pet |
 | `screensaverMode` | string | `"random"` | Screensaver pet source. `"random"` = random pets. `"collection"` = cycle through saved collection |

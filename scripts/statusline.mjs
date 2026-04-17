@@ -219,8 +219,9 @@ function statLine(name) {
   const bar = statColor + '\u2588'.repeat(filled) + DIM + '\u2591'.repeat(10 - filled) + RESET;
   return `${DIM}${name.padEnd(10)}${RESET}${bar} ${statColor}${String(v).padStart(3)}${RESET}`;
 }
-let col2 = STAT_NAMES.map(statLine);
-while (col2.length < totalRows) col2.unshift(' '.repeat(COL2_WIDTH));
+const COL2_PADDING = 2;
+let col2 = STAT_NAMES.map(n => statLine(n) + ' '.repeat(COL2_PADDING));
+while (col2.length < totalRows) col2.unshift(' '.repeat(COL2_WIDTH + COL2_PADDING));
 
 // Col 3: spread info across rows, bottom-align
 const COL3_WIDTH = 40;
@@ -267,8 +268,8 @@ const col3items = [
   duration ? truncateCol3(`${DIM}⏱ ${duration}${RESET}`) : '',
 ].filter(Boolean);
 
-// displayMode: "full" (default) | "sprite" (right-aligned sprite only) | "combined" (left screensaver + right fixed)
-let displayMode = 'full';
+// displayMode: "hud" (default) | "sprite" (right-aligned sprite only) | "combined" (left screensaver + right fixed)
+let displayMode = 'hud';
 try {
   const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
   if (cfg.displayMode === 'sprite') displayMode = 'sprite';
@@ -496,7 +497,7 @@ let col3 = [...col3items];
 while (col3.length < totalRows) col3.unshift('');
 
 for (let i = 0; i < totalRows; i++) {
-  console.log(`${padEnd(col1[i], COL1_WIDTH)}  ${col2[i] || ' '.repeat(COL2_WIDTH)}  ${col3[i] || ''}`);
+  console.log(`${padEnd(col1[i], COL1_WIDTH)}  ${col2[i] || ' '.repeat(COL2_WIDTH + COL2_PADDING)}  ${col3[i] || ''}`);
 }
 
 } // end displayMode else
