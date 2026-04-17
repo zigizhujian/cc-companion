@@ -81,20 +81,21 @@ print('Done!')
 "
 ```
 
-3. Detect bun path:
+3. Install statusline (detects bun path and writes settings.json automatically):
 ```bash
 BUN_PATH=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
+python3 - "$BUN_PATH" << 'PYEOF'
+import json, os, sys
+bun = sys.argv[1]
+p = os.path.expanduser('~/.claude/settings.json')
+try: s = json.load(open(p))
+except: s = {}
+awk = r'{ print $(NF-1) "\t" $0 }'
+cmd = f"bash -c 'PLUGIN_DIR=$(ls -d \"${{CLAUDE_CONFIG_DIR:-$HOME/.claude}}\"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '\\''{ awk }'\\'' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-); exec \"{bun}\" \"${{PLUGIN_DIR}}scripts/statusline.mjs\"'"
+s['statusLine'] = {'type': 'command', 'command': cmd, 'refreshInterval': 4}
+json.dump(s, open(p, 'w'), indent=2)
+print('Done!')
+PYEOF
 ```
 
-4. Update `~/.claude/settings.json` statusLine:
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "bash -c 'PLUGIN_DIR=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $0 }'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-); exec \"{BUN_PATH}\" \"${PLUGIN_DIR}scripts/statusline.mjs\"'",
-    "refreshInterval": 4
-  }
-}
-```
-
-5. Tell user to restart Claude Code.
+4. Tell user to restart Claude Code.
