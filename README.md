@@ -24,9 +24,9 @@ Each Claude Code user gets a **unique deterministic companion** based on their a
 | `/cc-companion:companion` | Show your companion (ASCII art, stats, rarity) |
 | `/cc-companion:companion-customize` | Choose your own species, rarity, eyes, hat |
 | `/cc-companion:companion-statusline` | Toggle companion statusline on/off |
-| `/cc-companion:companion-screensaver` | Toggle screensaver mode on/off |
-| `/cc-companion:companion-collection` | Save, list, switch, or remove favorite pets |
 | `/cc-companion:companion-pet` | Pet your companion |
+| `/cc-companion:companion-collection` | Save, list, switch, or remove favorite pets |
+| `/cc-companion:companion-screensaver` | Toggle screensaver mode on/off |
 
 ---
 
