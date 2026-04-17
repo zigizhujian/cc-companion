@@ -78,6 +78,14 @@ Run `/cc-companion:companion-pet` to pet your companion. Floating hearts appear 
 
 ---
 
+## Collection
+
+Save your favorite pets and switch between them anytime.
+
+Run `/cc-companion:companion-collection`: **save** · **list** · **switch** · **remove**
+
+---
+
 ## Screensaver
 
 Turn your statusline into a **pet parade** — a new companion appears periodically, like opening blind boxes while you code.
@@ -88,14 +96,6 @@ Run `/cc-companion:companion-screensaver` to toggle. Choose a refresh interval:
 - **5** (default) — new pet every 5 minutes
 
 Set `screensaverMode` to `"random"` for fully random pets, or `"collection"` to cycle through your saved favorites.
-
----
-
-## Collection
-
-Save your favorite pets and switch between them anytime.
-
-Run `/cc-companion:companion-collection`: **save** · **list** · **switch** · **remove**
 
 ---
 
