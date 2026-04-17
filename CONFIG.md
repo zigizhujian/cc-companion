@@ -21,7 +21,7 @@ These go in `~/.claude/settings.json` under `statusLine`:
 
 | Parameter | Value | Description |
 |-----------|-------|-------------|
-| `refreshInterval` | `4` | Seconds between statusline auto-refreshes. Drives animation. `4` = 1-minute animation cycle in classic mode |
+| `refreshInterval` | `1` | Seconds between statusline auto-refreshes. Drives animation. `1` = smooth animation |
 
 ## Example config
 

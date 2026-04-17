@@ -92,7 +92,7 @@ try: s = json.load(open(p))
 except: s = {}
 awk = r'{ print $(NF-1) "\t" $' + '0 }'
 cmd = f"bash -c 'PLUGIN_DIR=$(ls -d \"${{CLAUDE_CONFIG_DIR:-$HOME/.claude}}\"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '\\''{ awk }'\\'' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-); exec \"{bun}\" \"${{PLUGIN_DIR}}scripts/statusline.mjs\"'"
-s['statusLine'] = {'type': 'command', 'command': cmd, 'refreshInterval': 4}
+s['statusLine'] = {'type': 'command', 'command': cmd, 'refreshInterval': 1}
 json.dump(s, open(p, 'w'), indent=2)
 print('Done!')
 PYEOF
