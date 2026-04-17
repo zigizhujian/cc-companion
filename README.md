@@ -38,6 +38,14 @@ Run `/cc-companion:companion` to see your pet — species, rarity, eyes, hat, an
 
 ---
 
+## Customization
+
+`/cc-companion:companion-customize` walks you through choosing species, rarity, eyes, hat, and shiny. The plugin brute-force searches for a matching salt using `Bun.hash` — usually under 2 seconds.
+
+Once you have a pet you like, save it to your collection with `/cc-companion:companion-collection`.
+
+---
+
 ## Display Modes
 
 Run `/cc-companion:companion-statusline` to enable the statusline. Then set `displayMode` in `~/.claude/plugins/cc-companion/config.json`.
@@ -59,14 +67,6 @@ Your companion tucked in the corner with name above. Closest to the original CC 
 ![sprite — own pet](assets/sprite%20own.png)
 ![sprite — random screensaver](assets/sprite%20random.png)
 ![sprite — collection screensaver](assets/sprite%20collection.png)
-
----
-
-## Customization
-
-`/cc-companion:companion-customize` walks you through choosing species, rarity, eyes, hat, and shiny. The plugin brute-force searches for a matching salt using `Bun.hash` — usually under 2 seconds.
-
-Once you have a pet you like, save it to your collection with `/cc-companion:companion-collection`.
 
 ---
 
