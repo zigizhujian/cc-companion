@@ -32,7 +32,7 @@ Each Claude Code user gets a **unique deterministic companion** based on their a
 
 ## Display Modes
 
-Set `displayMode` in `~/.claude/plugins/cc-companion/config.json`.
+Run `/cc-companion:companion-statusline` to enable the statusline. Then set `displayMode` in `~/.claude/plugins/cc-companion/config.json`.
 
 ### `"combined"` — screensaver pet (random or collection) on the left, your pet on the right, both animated
 
