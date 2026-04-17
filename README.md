@@ -75,6 +75,7 @@ Your companion tucked in the corner with name above. Closest to the original CC 
 Run `/cc-companion:companion-pet` to pet your companion. Floating hearts appear for a few seconds.
 
 ![sprite — hearts animation](assets/sprite%20pet.png)
+![combined — hearts animation](assets/combined%20pet.png)
 
 ---
 
