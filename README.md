@@ -30,6 +30,14 @@ Each Claude Code user gets a **unique deterministic companion** based on their a
 
 ---
 
+## Your Companion
+
+Run `/cc-companion:companion` to see your pet — species, rarity, eyes, hat, and stats. On first use it will ask you to give your companion a name.
+
+![companion](assets/companion.png)
+
+---
+
 ## Display Modes
 
 Run `/cc-companion:companion-statusline` to enable the statusline. Then set `displayMode` in `~/.claude/plugins/cc-companion/config.json`.
