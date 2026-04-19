@@ -1,5 +1,17 @@
 # Changelog
 
+## 5.2.0
+
+- 5-frame hearts animation from CC source (♥ float up + · dissolve)
+- Display mode renamed: `full` → `hud`
+- Col2 right padding (2 spaces) in hud and combined modes
+- SHINY label color changed to gold (256-color 220)
+- Default refreshInterval changed to 1 second
+- Statusline install uses python script to avoid CC skill $0 stripping
+- Companion statusline command: display mode switching when already active
+- First-run onboarding: auto-init config defaults, read docs on first `/companion`
+- Customize: dry-run by default, confirm before saving
+
 ## 5.0.0
 
 - Combined display mode: left screensaver pet + stats + session info, right fixed pet
