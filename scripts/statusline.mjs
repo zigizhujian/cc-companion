@@ -308,14 +308,13 @@ if (displayMode === 'sprite') {
   const contentWidth = Math.max(SPRITE_WIDTH, fullNameLen);
   const pad = Math.max(0, cols - contentWidth - RIGHT_MARGIN);
   const RED = '\x1b[91m'; // bright red
-  const HEART = '\u2764';
-  // 3 hearts, 12 chars total, irregular spacing for natural floating feel
-  // f0: pos 1,7,9; f1: pos 2,6,10; f2: pos 1,4,9; f3: pos 3,6,8
+  const H = '\u2665'; // ♥
   const HEART_FRAMES = [
-    ` ${HEART}     ${HEART} ${HEART}  `,
-    `  ${HEART}   ${HEART}   ${HEART} `,
-    ` ${HEART}  ${HEART}    ${HEART}  `,
-    `   ${HEART}  ${HEART} ${HEART}   `,
+    `   ${H}    ${H}   `,
+    `  ${H}  ${H}   ${H}  `,
+    ` ${H}   ${H}  ${H}   `,
+    `${H}  ${H}      ${H} `,
+    `\u00B7    \u00B7   \u00B7  `,
   ];
 
   // Hearts animation: pet.sh writes { framesLeft, frame, writtenAt } to tmp
@@ -330,7 +329,6 @@ if (displayMode === 'sprite') {
       if (state.writtenAt && (Date.now() - state.writtenAt) < HEART_PROTECTION_MS) {
         // Inside protection window: skip (don't show, don't consume)
       } else {
-        // Outside protection: show and consume
         showHearts = true;
         heartFrame = state.frame;
         writeFileSync(HEART_FRAME_STATE, JSON.stringify({ framesLeft: state.framesLeft - 1, frame: (state.frame + 1) % HEART_FRAMES.length }));
@@ -396,12 +394,13 @@ if (displayMode === 'sprite') {
 
   // Right first row: hearts or petName (same logic as sprite mode)
   const RED = '\x1b[91m';
-  const HEART = '\u2764';
+  const H = '\u2665'; // ♥
   const HEART_FRAMES = [
-    ` ${HEART}     ${HEART} ${HEART}  `,
-    `  ${HEART}   ${HEART}   ${HEART} `,
-    ` ${HEART}  ${HEART}    ${HEART}  `,
-    `   ${HEART}  ${HEART} ${HEART}   `,
+    `   ${H}    ${H}   `,
+    `  ${H}  ${H}   ${H}  `,
+    ` ${H}   ${H}  ${H}   `,
+    `${H}  ${H}      ${H} `,
+    `\u00B7    \u00B7   \u00B7  `,
   ];
   const HEART_PROTECTION_MS = 1000;
   let rightShowHearts = false;
