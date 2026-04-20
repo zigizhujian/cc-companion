@@ -47,11 +47,27 @@ Then stop.
 
 **Shiny?** — ask yes/no (takes ~100x longer to search, about 1 second)
 
-### Step 3: Run the finder non-interactively
+### Step 3: Run the finder
 After collecting all choices, build the command. Add `--shiny` flag if user wants shiny:
 ```bash
 PLUGIN_DIR=$(ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '{ print $(NF-1) "\t" $0 }' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-)
 "$HOME/.bun/bin/bun" "${PLUGIN_DIR}scripts/customize-auto.mjs" <species> <rarity> <eye> [hat] [--shiny]
 ```
 
-### Step 4: Tell the user the statusline will update automatically. No restart needed.
+The output includes the salt and the sprite. Show the result to the user, then ask: "Save this pet?"
+
+- If yes: save the salt from the output to config:
+```bash
+python3 -c "
+import json, os
+p = os.path.expanduser('~/.claude/plugins/cc-companion/config.json')
+try: d = json.load(open(p))
+except: d = {}
+d['salt'] = '<SALT_FROM_OUTPUT>'
+json.dump(d, open(p, 'w'), indent=2)
+print('Saved!')
+"
+```
+Tell user the statusline will update automatically.
+
+- If no: do nothing. The current pet is unchanged.

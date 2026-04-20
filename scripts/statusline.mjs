@@ -338,6 +338,57 @@ if (displayMode === 'sprite') {
 
   const spriteCenterOffset = Math.floor((contentWidth - SPRITE_WIDTH) / 2);
 
+  // Speech bubble: read reaction from tmp file
+  const BUBBLE_TTL_MS = 10000; // 10 seconds
+  const BUBBLE_BOX_W = 34; // 30 text + 2 padding + 2 border
+  const BUBBLE_TEXT_W = BUBBLE_BOX_W - 4; // 30
+  const BUBBLE_TAIL_W = 2; // connector "─" chars
+  let bubbleLines = null; // null = no bubble, otherwise array of 4 strings (rows 1-4)
+
+  try {
+    const cfg = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
+    if (cfg.speechBubble) {
+      const reactionFile = join(tmpdir(), '.cc-companion-reaction.json');
+      const reaction = JSON.parse(readFileSync(reactionFile, 'utf8'));
+      const age = Date.now() - reaction.timestamp;
+      if (age < BUBBLE_TTL_MS && reaction.reaction) {
+        // Fade: normal for first 7s, DIM for last 3s, then disappear
+        const DIM = '\x1b[2m';
+        const fading = age >= 7000;
+        const fadeColor = fading ? `${DIM}${color}` : color;
+        const fadeText = fadeColor;
+
+        const text = reaction.reaction;
+        const words = text.split(' ');
+        const wrapped = [];
+        let cur = '';
+        for (const w of words) {
+          if (cur.length + w.length + 1 > BUBBLE_TEXT_W && cur) { wrapped.push(cur); cur = w; }
+          else { cur = cur ? `${cur} ${w}` : w; }
+        }
+        if (cur) wrapped.push(cur);
+        const line1 = (wrapped[0] || '').slice(0, BUBBLE_TEXT_W);
+        const line2 = (wrapped[1] || '').slice(0, BUBBLE_TEXT_W);
+
+        const border = '─'.repeat(BUBBLE_BOX_W - 2);
+        const padLine = (s) => s + ' '.repeat(Math.max(0, BUBBLE_TEXT_W - visualWidth(stripAnsi(s))));
+        bubbleLines = [
+          `${fadeColor}╭${border}╮${RESET}`,
+          `${fadeColor}│${RESET} ${fadeText}${padLine(line1)}${RESET} ${fadeColor}│${RESET}`,
+          `${fadeColor}│${RESET} ${fadeText}${padLine(line2)}${RESET} ${fadeColor}│${RESET}`,
+          `${fadeColor}╰${border}╯──${RESET}`,
+        ];
+      }
+    }
+  } catch {}
+
+  // Calculate bubble position: bubble sits left of sprite with a small gap
+  const BUBBLE_GAP = 1; // gap between bubble tail and sprite
+  const bubbleTotalW = bubbleLines ? BUBBLE_BOX_W + BUBBLE_TAIL_W + BUBBLE_GAP : 0;
+  const spriteStart = pad + spriteCenterOffset;
+  const bubbleStart = bubbleLines ? Math.max(0, spriteStart - bubbleTotalW) : 0;
+
+  // Row 0: hearts or petName
   if (showHearts) {
     console.log(BRAILLE.repeat(pad + spriteCenterOffset) + RED + HEART_FRAMES[heartFrame] + RESET);
   } else if (petName) {
@@ -349,8 +400,19 @@ if (displayMode === 'sprite') {
     console.log(BRAILLE.repeat(pad) + ' '.repeat(contentWidth));
   }
 
-  for (const line of sprite) {
-    console.log(BRAILLE.repeat(pad + spriteCenterOffset) + color + line + RESET);
+  // Rows 1-5: sprite lines, with optional bubble on rows 1-4
+  for (let i = 0; i < sprite.length; i++) {
+    const spriteLine = BRAILLE.repeat(spriteCenterOffset) + color + sprite[i] + RESET;
+    if (bubbleLines && i >= 0 && i <= 3) {
+      // Bubble row: pad + bubble + gap-fill + sprite
+      const bubblePart = bubbleLines[i];
+      const bubbleVisW = visualWidth(stripAnsi(bubblePart));
+      const gapFill = Math.max(0, spriteStart - bubbleStart - bubbleVisW);
+      console.log(BRAILLE.repeat(bubbleStart) + bubblePart + BRAILLE.repeat(gapFill) + spriteLine);
+    } else {
+      // No bubble: just pad + sprite
+      console.log(BRAILLE.repeat(pad) + spriteLine);
+    }
   }
 } else if (displayMode === 'combined') {
   // Combined mode: left = screensaver pet with stats, right = fixed pet (same as sprite mode)

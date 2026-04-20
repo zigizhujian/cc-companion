@@ -1,14 +1,13 @@
 #!/usr/bin/env bun
 
-// CC Companion Customize (non-interactive) — finds a salt for desired pet, saves to config.
-// Does NOT patch the CC binary. The companion statusline reads the custom salt from config.
-// Binary patching code is preserved in patcher.mjs for when official buddy returns.
+// CC Companion Customize (non-interactive) — finds a salt for desired pet, outputs result.
+// Does NOT save to config. The LLM handles saving after user confirmation.
 
-import { readFileSync, writeFileSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { readFileSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import { homedir } from 'os';
 import {
-  SPECIES, RARITIES, EYES, HATS, SALT, SALT_LENGTH,
+  SPECIES, RARITIES, EYES, HATS, SALT_LENGTH,
   RARITY_STARS, roll, renderSprite, getUserId,
 } from './companion.mjs';
 import { findSalt } from './finder.mjs';
@@ -25,12 +24,6 @@ const CONFIG_PATH = join(homedir(), '.claude', 'plugins', 'cc-companion', 'confi
 
 function loadConfig() {
   try { return JSON.parse(readFileSync(CONFIG_PATH, 'utf8')); } catch { return {}; }
-}
-
-function saveConfig(data) {
-  const existing = loadConfig();
-  mkdirSync(dirname(CONFIG_PATH), { recursive: true });
-  writeFileSync(CONFIG_PATH, JSON.stringify({ ...existing, ...data }, null, 2));
 }
 
 const args = process.argv.slice(2);
@@ -81,14 +74,7 @@ console.log(`\n${YELLOW}  Searching for matching salt...${RESET}`);
 const result = findSalt(userId, desired);
 console.log(`${GREEN}  Found in ${result.attempts.toLocaleString()} attempts (${(result.elapsed / 1000).toFixed(1)}s)${RESET}`);
 
-// Save to config (statusline will read this)
-saveConfig({
-  salt: result.salt,
-  desired,
-  customizedAt: new Date().toISOString(),
-});
-
-// Show the new pet
+// Show the pet
 const bones = roll(userId, result.salt);
 const sprite = renderSprite(bones, 0);
 console.log();
@@ -96,6 +82,5 @@ for (const line of sprite) {
   console.log(`  ${color}${line}${RESET}`);
 }
 
-console.log(`\n${BOLD}${GREEN}  Saved! Your companion statusline will show your new ${species}.${RESET}`);
-console.log(`${DIM}  Config: ${CONFIG_PATH}${RESET}`);
-console.log(`${DIM}  Run with 'restore' to revert to original pet.${RESET}\n`);
+console.log(`\n${BOLD}${YELLOW}  Salt: ${result.salt}${RESET}`);
+console.log(`${DIM}  Not saved yet. Confirm to save.${RESET}\n`);

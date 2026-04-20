@@ -13,6 +13,7 @@ Config file: `~/.claude/plugins/cc-companion/config.json`
 | `screensaver` | boolean | `false` | Enable screensaver mode. Statusline shows rotating pets instead of your fixed pet |
 | `screensaverMode` | string | `"random"` | Screensaver pet source. `"random"` = random pets. `"collection"` = cycle through saved collection |
 | `screensaverInterval` | number | `5` | Minutes between pet changes in screensaver mode. `0` = change on every statusline refresh |
+| `speechBubble` | boolean | `false` | Enable speech bubble. When on, LLM writes a reaction comment each turn (costs extra tokens). Bubble appears next to pet for 10 seconds with 3-level fade |
 | `collection` | array | `[]` | Saved favorite pets. Each entry: `{ "name", "salt", "species", "rarity" }`. Managed via `/companion:collection` |
 
 ## Settings.json (CC statusline)

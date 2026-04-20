@@ -15,16 +15,17 @@ PLUGIN_DIR=$(ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-compan
 "$HOME/.bun/bin/bun" "${PLUGIN_DIR}scripts/companion.mjs"
 ```
 
-Then read the current displayMode:
+Then read the current displayMode and speechBubble:
 ```bash
-python3 -c "import json, os; d=json.load(open(os.path.expanduser('~/.claude/plugins/cc-companion/config.json'))); print(d.get('displayMode','hud'))" 2>/dev/null
+python3 -c "import json, os; d=json.load(open(os.path.expanduser('~/.claude/plugins/cc-companion/config.json'))); print(d.get('displayMode','hud')); print(d.get('speechBubble', False))" 2>/dev/null
 ```
 
 Ask the user:
-> Companion statusline is active (current mode: **{displayMode}**). What would you like to do?
+> Companion statusline is active (current mode: **{displayMode}**, speech bubble: **{on/off}**). What would you like to do?
 > 1. Change display mode
-> 2. Remove statusline
-> 3. Nothing
+> 2. Toggle speech bubble
+> 3. Remove statusline
+> 4. Nothing
 
 **If change display mode:**
 
@@ -45,6 +46,23 @@ json.dump(d, open(p, 'w'), indent=2)
 print('Done!')
 "
 ```
+
+**If toggle speech bubble:**
+
+Toggle speechBubble in config:
+```bash
+python3 -c "
+import json, os
+p = os.path.expanduser('~/.claude/plugins/cc-companion/config.json')
+try: d = json.load(open(p))
+except: d = {}
+d['speechBubble'] = not d.get('speechBubble', False)
+json.dump(d, open(p, 'w'), indent=2)
+state = 'on' if d['speechBubble'] else 'off'
+print(f'Speech bubble {state}!')
+"
+```
+Tell the user: when on, the LLM writes a small reaction comment at the end of each response (costs a few extra tokens). The bubble appears next to the pet in the statusline for 10 seconds.
 Tell user the statusline will update automatically.
 
 **If remove:**
@@ -81,7 +99,7 @@ print('Done!')
 "
 ```
 
-3. Install statusline (detects bun path and writes settings.json automatically):
+3. Install statusline and hooks (detects bun path and writes settings.json automatically):
 ```bash
 BUN_PATH=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
 python3 - "$BUN_PATH" << 'PYEOF'
@@ -91,8 +109,32 @@ p = os.path.expanduser('~/.claude/settings.json')
 try: s = json.load(open(p))
 except: s = {}
 awk = r'{ print $(NF-1) "\t" $' + '0 }'
-cmd = f"bash -c 'PLUGIN_DIR=$(ls -d \"${{CLAUDE_CONFIG_DIR:-$HOME/.claude}}\"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '\\''{ awk }'\\'' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-); exec \"{bun}\" \"${{PLUGIN_DIR}}scripts/statusline.mjs\"'"
+plugin_dir_cmd = r"$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '" + r"'\\''{ " + awk + r" }'\\''" + r" | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-)"
+cmd = f"bash -c 'PLUGIN_DIR={plugin_dir_cmd}; exec \"{bun}\" \"${{PLUGIN_DIR}}scripts/statusline.mjs\"'"
 s['statusLine'] = {'type': 'command', 'command': cmd, 'refreshInterval': 1}
+# Register Stop hook for speech bubble
+hooks = s.setdefault('hooks', {})
+stop = hooks.setdefault('Stop', [])
+if not any('cc-companion' in json.dumps(h) for h in stop):
+    stop.append({
+        'matcher': '',
+        'hooks': [{
+            'type': 'command',
+            'command': f"bash -c 'PLUGIN_DIR={plugin_dir_cmd}; bash \"${{PLUGIN_DIR}}scripts/speech-bubble.sh\"'"
+        }]
+    })
+# Register UserPromptSubmit hook for speech bubble instructions + timestamp
+ups = hooks.setdefault('UserPromptSubmit', [])
+# Replace existing cc-companion or timestamp hook
+ups_new = [h for h in ups if 'cc-companion' not in json.dumps(h) and 'Current time' not in json.dumps(h)]
+ups_new.append({
+    'matcher': '',
+    'hooks': [{
+        'type': 'command',
+        'command': f"bash -c 'PLUGIN_DIR={plugin_dir_cmd}; bash \"${{PLUGIN_DIR}}scripts/prompt-hook.sh\"'"
+    }]
+})
+hooks['UserPromptSubmit'] = ups_new
 json.dump(s, open(p, 'w'), indent=2)
 print('Done!')
 PYEOF

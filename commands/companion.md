@@ -17,6 +17,7 @@ defaults = {
   'screensaver': False,
   'screensaverMode': 'random',
   'screensaverInterval': 5,
+  'speechBubble': False,
   'collection': []
 }
 try:
