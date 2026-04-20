@@ -45,5 +45,7 @@ These go in `~/.claude/settings.json` under `statusLine`:
 - `/companion` always shows your stored pet (config `salt`), regardless of screensaver mode
 - Screensaver only affects the statusline display
 - `refreshInterval` in settings.json is set by `/companion:statusline` command
-- Hearts animation uses frame counting with 1s protection window — all 4 frames visible
+- Hearts animation uses frame counting with 1s protection window — all 5 frames visible
 - Terminal width for sprite mode is auto-detected via parent process PTY
+- Speech bubble uses Stop hook + UserPromptSubmit hook, registered by `/companion:statusline`
+- Bubble TTL 10 seconds, DIM fade in last 3 seconds

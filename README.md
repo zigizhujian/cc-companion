@@ -79,6 +79,16 @@ Run `/cc-companion:companion-pet` to pet your companion. Floating hearts appear 
 
 ---
 
+## Speech Bubble
+
+Your companion reacts to each conversation turn with a short comment in a speech bubble next to the sprite. The bubble appears for 10 seconds with a fade-out effect.
+
+Toggle via `/cc-companion:companion-statusline` → "Toggle speech bubble", or set `speechBubble` in config. Default off — when on, costs a few extra tokens per turn.
+
+Works in `sprite` and `combined` modes. Bubble language follows the user's language.
+
+---
+
 ## Collection
 
 Save your favorite pets and switch between them anytime.

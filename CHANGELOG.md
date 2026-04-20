@@ -1,5 +1,16 @@
 # Changelog
 
+## 6.0.0
+
+- Speech bubble: companion reacts to each conversation turn with a short comment
+- Stop hook extracts `<!-- buddy: ... -->` from LLM response
+- UserPromptSubmit hook injects bubble instructions when `speechBubble` enabled
+- Bubble renders in sprite and combined modes (34 wide, round border, 10s TTL)
+- DIM fade in last 3 seconds, pet rarity color for border and text
+- `speechBubble` config toggle (default off, saves tokens)
+- Bubble language follows user's language
+- Hook wrappers in config dir for version-independent paths
+
 ## 5.2.0
 
 - 5-frame hearts animation from CC source (♥ float up + · dissolve)
