@@ -529,9 +529,52 @@ if (displayMode === 'sprite') {
   let col3Combined = [...col3items];
   while (col3Combined.length < 6) col3Combined.unshift('');
 
-  // === OUTPUT: left + stats + col3 + gap + right ===
+  // === OUTPUT: left + stats + col3 + gap + bubble? + right ===
   const leftTotalWidth = COL1_WIDTH + 2 + (COL2_WIDTH + 2) + 2 + COL3_WIDTH; // col1 + spacing + col2+padding + spacing + col3
   const midGap = Math.max(0, cols - leftTotalWidth - rightContentWidth - RIGHT_MARGIN);
+
+  // Speech bubble for combined mode
+  const BUBBLE_TTL_MS = 10000;
+  const BUBBLE_BOX_W = 34;
+  const BUBBLE_TEXT_W = BUBBLE_BOX_W - 4;
+  const BUBBLE_TAIL_W = 2;
+  let bubbleLinesCombined = null;
+
+  try {
+    const cfg2 = JSON.parse(readFileSync(join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json'), 'utf8'));
+    if (cfg2.speechBubble) {
+      const reactionFile = join(tmpdir(), '.cc-companion-reaction.json');
+      const reaction = JSON.parse(readFileSync(reactionFile, 'utf8'));
+      const age = Date.now() - reaction.timestamp;
+      if (age < BUBBLE_TTL_MS && reaction.reaction && midGap >= BUBBLE_BOX_W + BUBBLE_TAIL_W) {
+        const DIM2 = '\x1b[2m';
+        const fading2 = age >= 7000;
+        const fadeColor2 = fading2 ? `${DIM2}${rightColor}` : rightColor;
+        const fadeText2 = fadeColor2;
+
+        const text = reaction.reaction;
+        const words = text.split(' ');
+        const wrapped = [];
+        let cur = '';
+        for (const w of words) {
+          if (cur.length + w.length + 1 > BUBBLE_TEXT_W && cur) { wrapped.push(cur); cur = w; }
+          else { cur = cur ? `${cur} ${w}` : w; }
+        }
+        if (cur) wrapped.push(cur);
+        const line1 = (wrapped[0] || '').slice(0, BUBBLE_TEXT_W);
+        const line2 = (wrapped[1] || '').slice(0, BUBBLE_TEXT_W);
+
+        const border = '─'.repeat(BUBBLE_BOX_W - 2);
+        const padLine = (s) => s + ' '.repeat(Math.max(0, BUBBLE_TEXT_W - visualWidth(stripAnsi(s))));
+        bubbleLinesCombined = [
+          `${fadeColor2}╭${border}╮${RESET}`,
+          `${fadeColor2}│${RESET} ${fadeText2}${padLine(line1)}${RESET} ${fadeColor2}│${RESET}`,
+          `${fadeColor2}│${RESET} ${fadeText2}${padLine(line2)}${RESET} ${fadeColor2}│${RESET}`,
+          `${fadeColor2}╰${border}╯──${RESET}`,
+        ];
+      }
+    }
+  } catch {}
 
   function padEndBraille(s, width) {
     const visible = visualWidth(stripAnsi(s));
@@ -548,7 +591,16 @@ if (displayMode === 'sprite') {
     const info = padEndBraille(col3Combined[i] || '', COL3_WIDTH);
     const right = rightRows[i] || '';
     const gap = i === 0 ? Math.max(0, midGap - leftRow0Overflow) : midGap;
-    console.log(`${left}\u2800\u2800${mid}\u2800\u2800${info}${BRAILLE.repeat(gap)}${right}`);
+
+    if (bubbleLinesCombined && i >= 1 && i <= 4) {
+      const bubblePart = bubbleLinesCombined[i - 1];
+      const bubbleFullW = BUBBLE_BOX_W + BUBBLE_TAIL_W; // all rows same width
+      const tailPad = (i < 4) ? BRAILLE.repeat(BUBBLE_TAIL_W) : ''; // rows 1-3 pad to match row 4 tail
+      const remainGap = Math.max(0, gap - bubbleFullW);
+      console.log(`${left}\u2800\u2800${mid}\u2800\u2800${info}${BRAILLE.repeat(remainGap)}${bubblePart}${tailPad}${right}`);
+    } else {
+      console.log(`${left}\u2800\u2800${mid}\u2800\u2800${info}${BRAILLE.repeat(gap)}${right}`);
+    }
   }
 
 } else {
