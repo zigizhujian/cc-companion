@@ -123,18 +123,17 @@ if not any('cc-companion' in json.dumps(h) for h in stop):
             'command': f"bash -c 'PLUGIN_DIR={plugin_dir_cmd}; bash \"${{PLUGIN_DIR}}scripts/speech-bubble.sh\"'"
         }]
     })
-# Register UserPromptSubmit hook for speech bubble instructions + timestamp
+# Register UserPromptSubmit hook for speech bubble instructions
 ups = hooks.setdefault('UserPromptSubmit', [])
-# Replace existing cc-companion or timestamp hook
-ups_new = [h for h in ups if 'cc-companion' not in json.dumps(h) and 'Current time' not in json.dumps(h)]
-ups_new.append({
-    'matcher': '',
-    'hooks': [{
-        'type': 'command',
-        'command': f"bash -c 'PLUGIN_DIR={plugin_dir_cmd}; bash \"${{PLUGIN_DIR}}scripts/prompt-hook.sh\"'"
-    }]
-})
-hooks['UserPromptSubmit'] = ups_new
+# Only add if not already registered, don't touch user's existing hooks
+if not any('cc-companion' in json.dumps(h) for h in ups):
+    ups.append({
+        'matcher': '',
+        'hooks': [{
+            'type': 'command',
+            'command': f"bash -c 'PLUGIN_DIR={plugin_dir_cmd}; bash \"${{PLUGIN_DIR}}scripts/prompt-hook.sh\"'"
+        }]
+    })
 json.dump(s, open(p, 'w'), indent=2)
 print('Done!')
 PYEOF

@@ -1,8 +1,6 @@
 #!/bin/bash
-# UserPromptSubmit hook: timestamp + speech bubble instructions (if enabled)
+# UserPromptSubmit hook: speech bubble instructions (if enabled)
 CONFIG="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/cc-companion/config.json"
-
-TIMESTAMP="Current time: $(date '+%Y-%m-%d %H:%M:%S %Z (%z)')"
 
 # Check if speechBubble is enabled
 BUBBLE=$(python3 -c "
@@ -17,7 +15,5 @@ except:
 " 2>/dev/null)
 
 if [ -n "$BUBBLE" ]; then
-    echo "{\"additionalContexts\": [\"$TIMESTAMP\", \"$BUBBLE\"]}"
-else
-    echo "{\"additionalContexts\": [\"$TIMESTAMP\"]}"
+    echo "{\"additionalContexts\": [\"$BUBBLE\"]}"
 fi
