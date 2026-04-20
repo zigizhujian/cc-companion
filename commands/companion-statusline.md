@@ -119,7 +119,7 @@ os.makedirs(config_dir, exist_ok=True)
 # Find latest plugin dir to copy wrappers from
 plugin_dir = subprocess.run(['bash', '-c', r"""ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '{ print $(NF-1) "\t" $0 }' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-"""], capture_output=True, text=True).stdout.strip()
 if plugin_dir:
-    for f in ['stop-hook.sh', 'prompt-hook-wrapper.sh']:
+    for f in ['stop-hook.sh', 'prompt-hook.sh']:
         src = os.path.join(plugin_dir, 'scripts', f)
         if os.path.exists(src):
             shutil.copy2(src, os.path.join(config_dir, f))
@@ -142,7 +142,7 @@ if not any('cc-companion' in json.dumps(h) for h in ups):
         'matcher': '',
         'hooks': [{
             'type': 'command',
-            'command': f'bash "{config_dir}/prompt-hook-wrapper.sh"'
+            'command': f'bash "{config_dir}/prompt-hook.sh"'
         }]
     })
 json.dump(s, open(p, 'w'), indent=2)

@@ -1,19 +1,5 @@
 #!/bin/bash
-# UserPromptSubmit hook: speech bubble instructions (if enabled)
-CONFIG="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/cc-companion/config.json"
-
-# Check if speechBubble is enabled
-BUBBLE=$(python3 -c "
-import json, os
-try:
-    d = json.load(open(os.path.expanduser('$CONFIG')))
-    name = d.get('petName', 'companion')
-    if d.get('speechBubble'):
-        print(f'You have a small companion named {name} beside the input box. At the very end of every response, append an invisible HTML comment: <!-- buddy: [reaction] -->. Write it in {name}\\'s voice — 1 short sentence about this turn. Use *asterisks* for actions. Match the user\\'s language. Max 40 chars. Example: <!-- buddy: *adjusts crown* nice fix! -->')
-except:
-    pass
-" 2>/dev/null)
-
-if [ -n "$BUBBLE" ]; then
-    echo "{\"additionalContexts\": [\"$BUBBLE\"]}"
-fi
+# Wrapper: find latest plugin dir and run prompt-submit.sh
+PLUGIN_DIR=$(ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '{ print $(NF-1) "\t" $0 }' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-)
+[ -z "$PLUGIN_DIR" ] && exit 0
+exec bash "${PLUGIN_DIR}scripts/prompt-submit.sh"
