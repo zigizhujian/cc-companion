@@ -112,6 +112,17 @@ awk = r'{ print $(NF-1) "\t" $' + '0 }'
 plugin_dir_cmd = r"$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '" + r"'\\''{ " + awk + r" }'\\''" + r" | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-)"
 cmd = f"bash -c 'PLUGIN_DIR={plugin_dir_cmd}; exec \"{bun}\" \"${{PLUGIN_DIR}}scripts/statusline.mjs\"'"
 s['statusLine'] = {'type': 'command', 'command': cmd, 'refreshInterval': 1}
+# Copy hook wrappers to config dir (version-independent fixed path)
+import shutil, subprocess
+config_dir = os.path.expanduser('~/.claude/plugins/cc-companion')
+os.makedirs(config_dir, exist_ok=True)
+# Find latest plugin dir to copy wrappers from
+plugin_dir = subprocess.run(['bash', '-c', r"""ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '{ print $(NF-1) "\t" $0 }' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-"""], capture_output=True, text=True).stdout.strip()
+if plugin_dir:
+    for f in ['stop-hook.sh', 'prompt-hook-wrapper.sh']:
+        src = os.path.join(plugin_dir, 'scripts', f)
+        if os.path.exists(src):
+            shutil.copy2(src, os.path.join(config_dir, f))
 # Register Stop hook for speech bubble
 hooks = s.setdefault('hooks', {})
 stop = hooks.setdefault('Stop', [])
@@ -120,7 +131,7 @@ if not any('cc-companion' in json.dumps(h) for h in stop):
         'matcher': '',
         'hooks': [{
             'type': 'command',
-            'command': f"bash -c 'PLUGIN_DIR={plugin_dir_cmd}; bash \"${{PLUGIN_DIR}}scripts/speech-bubble.sh\"'"
+            'command': f'bash "{config_dir}/stop-hook.sh"'
         }]
     })
 # Register UserPromptSubmit hook for speech bubble instructions
@@ -131,7 +142,7 @@ if not any('cc-companion' in json.dumps(h) for h in ups):
         'matcher': '',
         'hooks': [{
             'type': 'command',
-            'command': f"bash -c 'PLUGIN_DIR={plugin_dir_cmd}; bash \"${{PLUGIN_DIR}}scripts/prompt-hook.sh\"'"
+            'command': f'bash "{config_dir}/prompt-hook-wrapper.sh"'
         }]
     })
 json.dump(s, open(p, 'w'), indent=2)
