@@ -146,6 +146,16 @@ if not any('cc-companion' in json.dumps(h) for h in ups):
         }]
     })
 json.dump(s, open(p, 'w'), indent=2)
+# Inject speech bubble marker into ~/.claude/CLAUDE.md
+claude_md = os.path.expanduser('~/.claude/CLAUDE.md')
+marker = '<!-- cc-companion:speech-bubble -->'
+instructions = f'\n{marker}\nYou have a small companion pet in the statusline. At the very end of EVERY response, you MUST append: <!-- buddy: [reaction] --> (invisible HTML comment). Write it in the pet\'s voice — 1 short sentence. Use *asterisks* for actions. Match the user\'s language. Max 40 chars.\n{marker}\n'
+try:
+    existing = open(claude_md).read() if os.path.exists(claude_md) else ''
+    if marker not in existing:
+        with open(claude_md, 'a') as f:
+            f.write(instructions)
+except: pass
 print('Done!')
 PYEOF
 ```

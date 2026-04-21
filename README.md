@@ -13,7 +13,7 @@ Each Claude Code user gets a **unique deterministic companion** based on their a
 /plugin install cc-companion
 ```
 
-**Requires [Bun](https://bun.sh)**
+**Requires [Bun](https://bun.sh)** — Currently, only user-level installation is supported. Project-level installation will not work correctly.
 
 ---
 
