@@ -52,25 +52,14 @@ print('Done!')
 Toggle speechBubble in config:
 ```bash
 python3 -c "
-import json, os, re
+import json, os
 p = os.path.expanduser('~/.claude/plugins/cc-companion/config.json')
 try: d = json.load(open(p))
 except: d = {}
 d['speechBubble'] = not d.get('speechBubble', False)
 json.dump(d, open(p, 'w'), indent=2)
 state = 'on' if d['speechBubble'] else 'off'
-# Sync CLAUDE.md
-claude_md = os.path.expanduser('~/.claude/CLAUDE.md')
-marker = '<!-- cc-companion:speech-bubble -->'
-instructions = '\n' + marker + '\nYou have a small companion pet in the statusline. At the very end of EVERY response, you MUST append: <!-- buddy: [reaction] --> (invisible HTML comment). Write it in the pet\'s voice — 1 short sentence. Use *asterisks* for actions. Match the user\'s language. Max 40 chars.\n' + marker + '\n'
-try:
-    existing = open(claude_md).read() if os.path.exists(claude_md) else ''
-    if d['speechBubble'] and marker not in existing:
-        with open(claude_md, 'a') as f: f.write(instructions)
-    elif not d['speechBubble'] and marker in existing:
-        cleaned = re.sub(r'\n?' + re.escape(marker) + r'.*?' + re.escape(marker) + r'\n?', '', existing, flags=re.DOTALL)
-        open(claude_md, 'w').write(cleaned)
-except: pass
+# NOTE: CLAUDE.md injection disabled — hooks handle instructions via additionalContexts
 print(f'Speech bubble {state}!')
 "
 ```
@@ -158,16 +147,9 @@ if not any('cc-companion' in json.dumps(h) for h in ups):
         }]
     })
 json.dump(s, open(p, 'w'), indent=2)
-# Inject speech bubble marker into ~/.claude/CLAUDE.md
-claude_md = os.path.expanduser('~/.claude/CLAUDE.md')
-marker = '<!-- cc-companion:speech-bubble -->'
-instructions = f'\n{marker}\nYou have a small companion pet in the statusline. At the very end of EVERY response, you MUST append: <!-- buddy: [reaction] --> (invisible HTML comment). Write it in the pet\'s voice — 1 short sentence. Use *asterisks* for actions. Match the user\'s language. Max 40 chars.\n{marker}\n'
-try:
-    existing = open(claude_md).read() if os.path.exists(claude_md) else ''
-    if marker not in existing:
-        with open(claude_md, 'a') as f:
-            f.write(instructions)
-except: pass
+# NOTE: CLAUDE.md injection disabled — hooks are sufficient once context builds up.
+# If hooks ever prove unreliable, re-enable by writing instructions between
+# <!-- cc-companion:speech-bubble --> markers in ~/.claude/CLAUDE.md
 print('Done!')
 PYEOF
 ```
