@@ -9,7 +9,7 @@ try:
     d = json.load(open(os.path.expanduser('$CONFIG')))
     name = d.get('petName', 'companion')
     if d.get('speechBubble'):
-        print(f'You have a small companion named {name} beside the input box. At the very end of every response, append an invisible HTML comment: <!-- buddy: [reaction] -->. Write it in {name}\\'s voice — 1 short sentence about this turn. Use *asterisks* for actions. Match the user\\'s language. Max 40 chars. Example: <!-- buddy: *adjusts crown* nice fix! -->')
+        print(f'IMPORTANT: You have a small companion named {name} beside the input box. At the very end of EVERY response, you MUST always append this invisible HTML comment: <!-- buddy: [reaction] -->. Never skip this. Write it in {name}\\'s voice — 1 short sentence about this turn. Use *asterisks* for actions. Match the user\\'s language. Max 40 chars. Example: <!-- buddy: *adjusts crown* nice fix! -->')
 except:
     pass
 " 2>/dev/null)
