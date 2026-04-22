@@ -52,6 +52,14 @@ Once you have a pet you like, save it to your collection with `/cc-companion:com
 
 Run `/cc-companion:companion-statusline` to enable the statusline. Then set `displayMode` in `~/.claude/plugins/cc-companion/config.json`.
 
+### `"sprite"` — minimal right-aligned pet (animated sprite or screensaver pet)
+
+Your companion tucked in the corner with name above. Closest to the original CC buddy UI.
+
+![sprite — own pet](assets/sprite%20own.png)
+![sprite — random screensaver](assets/sprite%20random.png)
+![sprite — collection screensaver](assets/sprite%20collection.png)
+
 ### `"combined"` — screensaver pet (random or collection) on the left, your pet on the right, both animated
 
 ![combined — collection](assets/combined%20collection.png)
@@ -63,14 +71,6 @@ Run `/cc-companion:companion-statusline` to enable the statusline. Then set `dis
 ![hud — own](assets/hud%20own.png)
 ![hud — collection](assets/hud%20collection.png)
 ![hud — random](assets/hud%20random.png)
-
-### `"sprite"` — minimal right-aligned pet (animated sprite or screensaver pet)
-
-Your companion tucked in the corner with name above. Closest to the original CC buddy UI.
-
-![sprite — own pet](assets/sprite%20own.png)
-![sprite — random screensaver](assets/sprite%20random.png)
-![sprite — collection screensaver](assets/sprite%20collection.png)
 
 ---
 
