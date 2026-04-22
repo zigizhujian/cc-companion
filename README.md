@@ -1,12 +1,6 @@
 # CC Companion
 
-> Your coding buddy pet for Claude Code — alive in your statusline while you work.
-
-[![Version](https://img.shields.io/badge/version-6.0.0-6366f1?style=flat-square)](https://github.com/zigizhujian/cc-companion)
-[![License](https://img.shields.io/github/license/zigizhujian/cc-companion?style=flat-square&color=10b981)](LICENSE)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-v2.1.80%2B-8b5cf6?style=flat-square)](https://claude.ai/code)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-blue?style=flat-square)](#installation)
-[![Plugin](https://img.shields.io/badge/type-CC%20Plugin-ec4899?style=flat-square)](#why-a-plugin-not-mcp)
+## Your coding buddy pet for Claude Code — alive in your statusline while you work.
 
 ![CC Companion demo](assets/introduce.gif)
 
@@ -200,6 +194,12 @@ Stat bars are colored: **cyan** (high) · **yellow** (mid) · **red** (low)
 Config: `~/.claude/plugins/cc-companion/config.json`
 
 ---
+
+[![Version](https://img.shields.io/badge/version-6.0.0-6366f1?style=flat-square)](https://github.com/zigizhujian/cc-companion)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-v2.1.80%2B-8b5cf6?style=flat-square)](https://claude.ai/code)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-blue?style=flat-square)](#installation)
+[![Plugin](https://img.shields.io/badge/type-CC%20Plugin-ec4899?style=flat-square)](#why-a-plugin-not-mcp)
+[![License](https://img.shields.io/github/license/zigizhujian/cc-companion?style=flat-square&color=10b981)](LICENSE)
 
 ## License
 
