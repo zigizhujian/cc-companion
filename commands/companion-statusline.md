@@ -59,7 +59,6 @@ except: d = {}
 d['speechBubble'] = not d.get('speechBubble', False)
 json.dump(d, open(p, 'w'), indent=2)
 state = 'on' if d['speechBubble'] else 'off'
-# NOTE: CLAUDE.md injection disabled — hooks handle instructions via additionalContexts
 print(f'Speech bubble {state}!')
 "
 ```
@@ -147,9 +146,6 @@ if not any('cc-companion' in json.dumps(h) for h in ups):
         }]
     })
 json.dump(s, open(p, 'w'), indent=2)
-# NOTE: CLAUDE.md injection disabled — hooks are sufficient once context builds up.
-# If hooks ever prove unreliable, re-enable by writing instructions between
-# <!-- cc-companion:speech-bubble --> markers in ~/.claude/CLAUDE.md
 print('Done!')
 PYEOF
 ```
