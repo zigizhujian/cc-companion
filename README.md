@@ -56,9 +56,11 @@ Run `/cc-companion:companion-statusline` to enable the statusline. Then set `dis
 
 ![combined — collection](assets/combined%20collection.png)
 ![combined — random](assets/combined%20random.png)
+![combined — random2](assets/combined%20random2.png)
 
 ### `"hud"` — animated sprite or screensaver pet + stats + session info
 
+![hud — own](assets/hud%20own.png)
 ![hud — collection](assets/hud%20collection.png)
 ![hud — random](assets/hud%20random.png)
 
@@ -88,6 +90,9 @@ Your companion reacts to each conversation turn with a short comment in a speech
 Toggle via `/cc-companion:companion-statusline` → "Toggle speech bubble", or set `speechBubble` in config. Default off — when on, costs a few extra tokens per turn.
 
 Works in `sprite` and `combined` modes. Bubble language follows the user's language.
+
+![sprite — bubble](assets/sprite%20bubble.png)
+![combined — bubble](assets/combined%20bubble.png)
 
 ---
 
