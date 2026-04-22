@@ -2,9 +2,29 @@
 
 > Your coding buddy pet for Claude Code — alive in your statusline while you work.
 
+[![Version](https://img.shields.io/badge/version-6.0.0-6366f1?style=flat-square)](https://github.com/zigizhujian/cc-companion)
+[![License](https://img.shields.io/github/license/zigizhujian/cc-companion?style=flat-square&color=10b981)](LICENSE)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-v2.1.80%2B-8b5cf6?style=flat-square)](https://claude.ai/code)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-blue?style=flat-square)](#installation)
+[![Plugin](https://img.shields.io/badge/type-CC%20Plugin-ec4899?style=flat-square)](#why-a-plugin-not-mcp)
+
 ![CC Companion demo](assets/introduce.gif)
 
-Each Claude Code user gets a **unique deterministic companion** based on their account. Customize it, collect favorites, and watch it animate while you code.
+**Anthropic removed `/buddy` in Claude Code v2.1.97.** CC Companion brings it back as a native plugin — no MCP server overhead, no background processes. Just skills, hooks, and shell scripts.
+
+Beyond the classic **sprite mode** with speech bubbles and pet hearts, CC Companion offers **hud mode** with full stats and session info, a **screensaver** that parades random pets like opening blind boxes, and the all-in-one **combined mode** that brings your statusline to life with a rotating pet show on the left and your faithful companion on the right.
+
+---
+
+### Why a Plugin, Not MCP?
+
+Similar tools use MCP servers with 17+ tool schemas — all loaded into every single message, burning tokens even when idle. CC Companion takes a different approach:
+
+- **Skills** — load only when you invoke them. Zero cost when not in use.
+- **Hooks** — lightweight shell scripts, no server process.
+- **Statusline** — a simple Bun script, no daemon.
+
+No background processes. No idle token overhead. Just a plugin that works.
 
 ---
 
