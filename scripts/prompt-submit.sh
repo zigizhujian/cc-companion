@@ -15,5 +15,5 @@ except:
 " 2>/dev/null)
 
 if [ -n "$BUBBLE" ]; then
-    echo "{\"additionalContexts\": [\"$BUBBLE\"]}"
+    python3 -c "import json, sys; print(json.dumps({'hookSpecificOutput': {'hookEventName': 'UserPromptSubmit', 'additionalContext': sys.argv[1]}}))" "$BUBBLE"
 fi

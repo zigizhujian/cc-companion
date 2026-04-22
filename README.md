@@ -2,6 +2,8 @@
 
 > Your coding buddy pet for Claude Code — alive in your statusline while you work.
 
+![CC Companion demo](assets/introduce.gif)
+
 Each Claude Code user gets a **unique deterministic companion** based on their account. Customize it, collect favorites, and watch it animate while you code.
 
 ---
