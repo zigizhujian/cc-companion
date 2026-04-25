@@ -21,9 +21,9 @@ python3 -c "import json, os; d=json.load(open(os.path.expanduser('~/.claude/plug
 ```
 
 Ask the user:
-> Companion statusline is active (current mode: **{displayMode}**, speech bubble: **{on/off}**). What would you like to do?
+> Companion statusline is active (current mode: **{displayMode}**, speech bubble: **{speechBubble}**). What would you like to do?
 > 1. Change display mode
-> 2. Toggle speech bubble
+> 2. Change speech bubble mode
 > 3. Remove statusline
 > 4. Nothing
 
@@ -47,22 +47,26 @@ print('Done!')
 "
 ```
 
-**If toggle speech bubble:**
+**If change speech bubble mode:**
 
-Toggle speechBubble in config:
+Ask which mode they want:
+- `off` — no speech bubble
+- `fun` — LLM writes a `<!-- buddy: ... -->` comment in each response (costs extra tokens). Bubble shows for 10 seconds
+- `review` — independent API call reviews assistant's code changes after each turn (no extra tokens in main conversation). Bubble shows for 30 seconds
+
+Save the chosen mode to config:
 ```bash
 python3 -c "
 import json, os
 p = os.path.expanduser('~/.claude/plugins/cc-companion/config.json')
 try: d = json.load(open(p))
 except: d = {}
-d['speechBubble'] = not d.get('speechBubble', False)
+d['speechBubble'] = '<MODE>'
 json.dump(d, open(p, 'w'), indent=2)
-state = 'on' if d['speechBubble'] else 'off'
-print(f'Speech bubble {state}!')
+print('Done!')
 "
 ```
-Tell the user: when on, the LLM writes a small reaction comment at the end of each response (costs a few extra tokens). The bubble appears next to the pet in the statusline for 10 seconds.
+Replace `<MODE>` with `false`, `"fun"`, or `"review"`.
 Tell user the statusline will update automatically.
 
 **If remove:**
