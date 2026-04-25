@@ -286,24 +286,46 @@ function truncateByWidth(s, maxW) {
   }
   return s;
 }
+const LINE_START_FORBIDDEN = new Set('、。，．！？；：〉》」』】）〕］｝…～・―／');
 function wrapByWidth(text, maxW) {
   const lines = [];
   let cur = '';
   let curW = 0;
+  let lastSpaceIdx = -1;
+  let lastSpaceW = 0;
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
-    const cw = charWidth(ch.codePointAt(0));
-    // Space: try to keep word together for latin text
+    const cp = ch.codePointAt(0);
+    const cw = charWidth(cp);
     if (ch === ' ') {
-      if (curW + 1 > maxW) { lines.push(cur); cur = ''; curW = 0; }
-      else { cur += ' '; curW += 1; }
+      if (curW + 1 > maxW) { lines.push(cur); cur = ''; curW = 0; lastSpaceIdx = -1; }
+      else { lastSpaceIdx = cur.length; lastSpaceW = curW; cur += ' '; curW += 1; }
       continue;
     }
-    // Would overflow: break here
     if (curW + cw > maxW) {
-      lines.push(cur);
-      cur = ch;
-      curW = cw;
+      if (cw >= 2) {
+        if (LINE_START_FORBIDDEN.has(ch) && cur.length > 1) {
+          const lastCh = cur[cur.length - 1];
+          const lastCw = charWidth(lastCh.codePointAt(0));
+          lines.push(cur.slice(0, -1));
+          cur = lastCh + ch;
+          curW = lastCw + cw;
+        } else {
+          lines.push(cur);
+          cur = ch;
+          curW = cw;
+        }
+      } else if (lastSpaceIdx >= 0) {
+        lines.push(cur.slice(0, lastSpaceIdx));
+        cur = cur.slice(lastSpaceIdx + 1) + ch;
+        curW = curW - lastSpaceW - 1 + cw;
+      } else {
+        lines.push(cur);
+        cur = ch;
+        curW = cw;
+      }
+      lastSpaceIdx = -1;
+      lastSpaceW = 0;
     } else {
       cur += ch;
       curW += cw;

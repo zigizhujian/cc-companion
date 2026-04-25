@@ -1,7 +1,7 @@
 #!/bin/bash
 # Stop hook: handles both "fun" and "review" speech bubble modes
 # fun: extract <!-- buddy: ... --> from LLM response
-# review: debounce + accumulate messages, then call review.mjs async
+# review: extract tool_use from transcript, debounce, then call review.mjs async
 
 TMPDIR_PATH="${TMPDIR:-/tmp}"
 REACTION_FILE="${TMPDIR_PATH}/.cc-companion-reaction.json"
@@ -11,12 +11,12 @@ ACCUMULATE_FILE="${TMPDIR_PATH}/.cc-companion-review-accumulate"
 DEBOUNCE_SECONDS=3
 
 # Read speechBubble mode from config
-MODE=$(python3 -c "
+MODE=$(CC_CONFIG="$CONFIG" python3 -c "
 import json, os
 try:
-    d = json.load(open(os.path.expanduser('$CONFIG')))
+    d = json.load(open(os.environ['CC_CONFIG']))
     v = d.get('speechBubble', False)
-    if v == True: v = 'fun'  # backwards compat: true -> fun
+    if v == True: v = 'fun'
     print(v if v else 'false')
 except: print('false')
 " 2>/dev/null)
@@ -25,72 +25,119 @@ except: print('false')
 
 INPUT=$(cat)
 MSG=$(echo "$INPUT" | jq -r '.last_assistant_message // ""' 2>/dev/null)
-[ -z "$MSG" ] && exit 0
+TRANSCRIPT=$(echo "$INPUT" | jq -r '.transcript_path // ""' 2>/dev/null)
 
 if [ "$MODE" = "fun" ]; then
+  [ -z "$MSG" ] && exit 0
   # Fun mode: extract <!-- buddy: ... --> comment
   COMMENT=$(echo "$MSG" | sed -n 's/.*<!-- *buddy: *\(.*[^ ]\) *-->.*/\1/p' | tail -1)
   [ -z "$COMMENT" ] && exit 0
-  python3 -c "
-import json, time, sys
+  CC_REACTION="$REACTION_FILE" python3 -c "
+import json, time, sys, os
 reaction = sys.stdin.read().strip()
 if reaction:
     json.dump({'reaction': reaction, 'timestamp': int(time.time()*1000), 'mode': 'fun'},
-        open('${REACTION_FILE}', 'w'))
+        open(os.environ['CC_REACTION'], 'w'))
 " <<< "$COMMENT"
 
 elif [ "$MODE" = "review" ]; then
-  # Review mode: debounce + accumulate, then async call review.mjs
-
-  # Skip very short messages (tool use completions like "Done", "✅", etc.)
-  MSG_LEN=${#MSG}
-  [ "$MSG_LEN" -lt 20 ] && exit 0
+  # Review mode: extract tool_use from transcript, debounce, then call review.mjs
 
   # Find plugin dir for review.mjs
   PLUGIN_DIR=$(ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '{ print $(NF-1) "\t" $0 }' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-)
   [ -z "$PLUGIN_DIR" ] && exit 0
 
-  # Accumulate messages (max 3, FIFO)
-  EXISTING=""
-  [ -f "$ACCUMULATE_FILE" ] && EXISTING=$(cat "$ACCUMULATE_FILE")
-  LINE_COUNT=$(echo "$EXISTING" | grep -c '<<<MSG_SEP>>>' 2>/dev/null)
-  LINE_COUNT=${LINE_COUNT:-0}
+  # Extract all assistant content from current turn (since last user message)
+  REVIEW_CONTENT=$(CC_TRANSCRIPT="$TRANSCRIPT" python3 -c "
+import json, sys, os
 
-  if [ "$LINE_COUNT" -ge 3 ]; then
-    # Drop oldest, keep last 2 + add new
-    EXISTING=$(echo "$EXISTING" | sed -n '/<<<MSG_SEP>>>/,$ p' | tail -n +2)
+transcript = os.environ.get('CC_TRANSCRIPT', '')
+if not transcript:
+    sys.exit(1)
+
+chunks = []
+try:
+    with open(transcript) as f:
+        lines = f.readlines()
+
+    # Find last real user message (not tool_result)
+    last_user = -1
+    for i in range(len(lines) - 1, -1, -1):
+        d = json.loads(lines[i].strip())
+        if d.get('type') != 'user':
+            continue
+        content = d.get('message', {}).get('content', [])
+        if isinstance(content, list) and any(c.get('type') == 'tool_result' for c in content if isinstance(c, dict)):
+            continue
+        last_user = i
+        break
+
+    start = last_user + 1 if last_user >= 0 else max(0, len(lines) - 100)
+    for line in lines[start:]:
+        d = json.loads(line.strip())
+        if d.get('type') != 'assistant':
+            continue
+        content = d.get('message', {}).get('content', [])
+        if not isinstance(content, list):
+            continue
+        for c in content:
+            if not isinstance(c, dict):
+                continue
+            if c.get('type') == 'tool_use':
+                name = c.get('name', '')
+                inp = c.get('input', {})
+                if name == 'Edit':
+                    fp = inp.get('file_path', '').rsplit('/', 1)[-1]
+                    os = inp.get('old_string', '')[:800]
+                    ns = inp.get('new_string', '')[:800]
+                    chunks.append('[Edit ' + fp + ']\n--- old\n' + os + '\n+++ new\n' + ns)
+                elif name == 'Write':
+                    fp = inp.get('file_path', '').rsplit('/', 1)[-1]
+                    ct = inp.get('content', '')[:1500]
+                    chunks.append('[Write ' + fp + ']\n' + ct)
+                elif name == 'Bash':
+                    cmd = inp.get('command', '')[:1000]
+                    chunks.append('[Bash]\n' + cmd)
+            elif c.get('type') == 'text' and c.get('text', '').strip():
+                chunks.append(c['text'].strip()[:500])
+except Exception:
+    pass
+
+if not chunks:
+    sys.exit(1)
+
+print('\n---\n'.join(chunks[:8]))
+" 2>/dev/null)
+
+  # Fall back to last_assistant_message if no tool_use found
+  if [ -z "$REVIEW_CONTENT" ]; then
+    REVIEW_CONTENT="$MSG"
   fi
 
-  # Append new message (truncate to 2000 chars each)
-  TRUNCATED=$(echo "$MSG" | head -c 2000)
-  if [ -z "$EXISTING" ]; then
-    echo "$TRUNCATED" > "$ACCUMULATE_FILE"
-  else
-    printf "%s\n<<<MSG_SEP>>>\n%s" "$EXISTING" "$TRUNCATED" > "$ACCUMULATE_FILE"
-  fi
+  [ -z "$REVIEW_CONTENT" ] && exit 0
+  # Skip very short content
+  [ ${#REVIEW_CONTENT} -lt 20 ] && exit 0
 
   # Record debounce timestamp
   date +%s > "$DEBOUNCE_FILE"
+
+  # Write content for this turn
+  echo "$REVIEW_CONTENT" | head -c 4000 > "$ACCUMULATE_FILE"
 
   # Async: wait debounce period, then check if we're still the latest
   (
     sleep "$DEBOUNCE_SECONDS"
 
-    # Check if debounce was reset by a newer stop
     STORED=$(cat "$DEBOUNCE_FILE" 2>/dev/null || echo 0)
     NOW=$(date +%s)
     DIFF=$((NOW - STORED))
-
-    # If another stop came in after us, it will handle it
     [ "$DIFF" -gt "$((DEBOUNCE_SECONDS + 1))" ] && exit 0
 
-    # Send accumulated messages to review.mjs
     ACCUMULATED=$(cat "$ACCUMULATE_FILE" 2>/dev/null)
     [ -z "$ACCUMULATED" ] && exit 0
 
     echo "$ACCUMULATED" | "$HOME/.bun/bin/bun" "${PLUGIN_DIR}scripts/review.mjs"
 
-    # Clean up accumulate file
     rm -f "$ACCUMULATE_FILE"
   ) &
 fi
