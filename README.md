@@ -6,7 +6,7 @@
 
 **Anthropic removed `/buddy` in Claude Code v2.1.97.** CC Companion brings it back as a native plugin — no MCP server overhead, no background processes. Just skills, hooks, and shell scripts.
 
-Beyond the classic **sprite mode** with speech bubbles and pet hearts, CC Companion offers **hud mode** with full stats and session info, a **screensaver** that parades random pets like opening blind boxes, and the all-in-one **combined mode** that brings your statusline to life with a rotating pet show on the left and your faithful companion on the right.
+Beyond the classic **sprite mode** with speech bubbles and pet hearts, CC Companion offers **hud mode** with full stats and session info, a **screensaver** that parades random pets like opening blind boxes, the all-in-one **combined mode**, and — new in v7 — a **review mode** where your companion independently reviews every code change using a separate API call.
 
 ---
 
@@ -99,11 +99,27 @@ Run `/cc-companion:companion-pet` to pet your companion. Floating hearts appear 
 
 ## Speech Bubble
 
-Your companion reacts to each conversation turn with a short comment in a speech bubble next to the sprite. The bubble appears for 10 seconds with a fade-out effect.
+Two modes — toggle via `/cc-companion:companion-statusline` → "Change speech bubble mode", or set `speechBubble` in config.
 
-Toggle via `/cc-companion:companion-statusline` → "Toggle speech bubble", or set `speechBubble` in config. Default off — when on, costs a few extra tokens per turn.
+### `"review"` — AI code reviewer (recommended)
 
-Works in `sprite` and `combined` modes. Bubble language follows the user's language.
+Your companion independently reviews every code change you make. After each turn, a lightweight API call reads the actual tool use from the conversation transcript — Edit diffs, Write content, Bash commands — and sends them to a separate Claude instance for review. Your companion flags real issues (injection, null access, race conditions) or reacts to the conversation.
+
+- **Zero extra tokens** in the main conversation — review runs as an independent API call
+- **Sees actual code**, not just the chat text — reads `transcript_path` for Edit/Write/Bash content
+- **Default model: Haiku**, configurable via `reviewModel` (e.g. `"anthropic--claude-sonnet-latest"`)
+- **Custom API**: set `reviewBaseURL`, `reviewApiKey`, `reviewModel` in config
+- Bubble shows for 30 seconds with fade-out
+
+### `"fun"` — LLM self-reaction
+
+The LLM writes a `<!-- buddy: reaction -->` comment at the end of each response. The Stop hook extracts it and displays it as a speech bubble. Costs a few extra tokens per turn. Bubble shows for 10 seconds.
+
+### Shared features
+
+- Works in `sprite` and `combined` modes
+- Bubble language follows the user's language
+- CJK-aware text wrapping with proper punctuation handling
 
 ![sprite — bubble](assets/sprite%20bubble.png)
 ![combined — bubble](assets/combined%20bubble.png)
@@ -195,7 +211,7 @@ Config: `~/.claude/plugins/cc-companion/config.json`
 
 ---
 
-[![Version](https://img.shields.io/badge/version-6.0.0-6366f1?style=flat-square)](https://github.com/zigizhujian/cc-companion)
+[![Version](https://img.shields.io/badge/version-7.0.0-6366f1?style=flat-square)](https://github.com/zigizhujian/cc-companion)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-v2.1.80%2B-8b5cf6?style=flat-square)](https://claude.ai/code)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-blue?style=flat-square)](#installation)
 [![Plugin](https://img.shields.io/badge/type-CC%20Plugin-ec4899?style=flat-square)](#why-a-plugin-not-mcp)
