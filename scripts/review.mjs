@@ -11,25 +11,32 @@ const REACTION_FILE = join(tmpdir(), '.cc-companion-reaction.json');
 const CONFIG_PATH = join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json');
 const SETTINGS_PATH = join(homedir(), '.claude', 'settings.json');
 
-// Read pet config
+// Read pet config + optional review API overrides
 let petName = 'companion';
-let species = 'unknown';
+let reviewBaseURL = '';
+let reviewApiKey = '';
+let reviewModel = '';
 try {
   const cfg = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
   petName = cfg.petName || 'companion';
+  if (cfg.reviewBaseURL) reviewBaseURL = cfg.reviewBaseURL.replace(/\/$/, '');
+  if (cfg.reviewApiKey) reviewApiKey = cfg.reviewApiKey;
+  if (cfg.reviewModel) reviewModel = cfg.reviewModel;
 } catch {}
 
-// Read proxy settings
-let baseURL = 'https://api.anthropic.com';
-let apiKey = '';
-let model = 'anthropic--claude-haiku-latest';
-try {
-  const settings = JSON.parse(readFileSync(SETTINGS_PATH, 'utf8'));
-  const env = settings.env || {};
-  if (env.ANTHROPIC_BASE_URL) baseURL = env.ANTHROPIC_BASE_URL.replace(/\/$/, '');
-  if (env.ANTHROPIC_AUTH_TOKEN) apiKey = env.ANTHROPIC_AUTH_TOKEN;
-  if (env.ANTHROPIC_DEFAULT_HAIKU_MODEL) model = env.ANTHROPIC_DEFAULT_HAIKU_MODEL;
-} catch {}
+// Default: read from CC settings.json (proxy)
+let baseURL = reviewBaseURL || 'https://api.anthropic.com';
+let apiKey = reviewApiKey || '';
+let model = reviewModel || 'anthropic--claude-haiku-latest';
+if (!reviewBaseURL || !reviewApiKey) {
+  try {
+    const settings = JSON.parse(readFileSync(SETTINGS_PATH, 'utf8'));
+    const env = settings.env || {};
+    if (!reviewBaseURL && env.ANTHROPIC_BASE_URL) baseURL = env.ANTHROPIC_BASE_URL.replace(/\/$/, '');
+    if (!reviewApiKey && env.ANTHROPIC_AUTH_TOKEN) apiKey = env.ANTHROPIC_AUTH_TOKEN;
+    if (!reviewModel && env.ANTHROPIC_DEFAULT_HAIKU_MODEL) model = env.ANTHROPIC_DEFAULT_HAIKU_MODEL;
+  } catch {}
+}
 
 // Read accumulated messages from stdin (pipe from speech-bubble.sh)
 const input = await Bun.stdin.text();
