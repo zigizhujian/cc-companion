@@ -1,0 +1,86 @@
+#!/usr/bin/env bun
+
+// Review mode: call Claude API independently to review the assistant's response.
+// Reads proxy config from ~/.claude/settings.json, pet config from cc-companion config.
+
+import { readFileSync, writeFileSync } from 'fs';
+import { join } from 'path';
+import { homedir, tmpdir } from 'os';
+
+const REACTION_FILE = join(tmpdir(), '.cc-companion-reaction.json');
+const CONFIG_PATH = join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json');
+const SETTINGS_PATH = join(homedir(), '.claude', 'settings.json');
+
+// Read pet config
+let petName = 'companion';
+let species = 'unknown';
+try {
+  const cfg = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
+  petName = cfg.petName || 'companion';
+} catch {}
+
+// Read proxy settings
+let baseURL = 'https://api.anthropic.com';
+let apiKey = '';
+let model = 'anthropic--claude-haiku-latest';
+try {
+  const settings = JSON.parse(readFileSync(SETTINGS_PATH, 'utf8'));
+  const env = settings.env || {};
+  if (env.ANTHROPIC_BASE_URL) baseURL = env.ANTHROPIC_BASE_URL.replace(/\/$/, '');
+  if (env.ANTHROPIC_AUTH_TOKEN) apiKey = env.ANTHROPIC_AUTH_TOKEN;
+  if (env.ANTHROPIC_DEFAULT_HAIKU_MODEL) model = env.ANTHROPIC_DEFAULT_HAIKU_MODEL;
+} catch {}
+
+// Read accumulated messages from stdin (pipe from speech-bubble.sh)
+const input = await Bun.stdin.text();
+if (!input.trim()) process.exit(0);
+
+const systemPrompt = `You are ${petName}, a small companion pet watching a coding session.
+
+Rules:
+- If there's code: flag issues (SQL injection, XSS, null access, race conditions, etc). Be specific.
+- If no code: react to the conversation witly.
+- EXACTLY one short sentence. Action and comment together. Under 25 chars total.
+- Use *action* at the start. Match the user's language.
+
+Good: *squints* SQL injection!
+Good: *nods* 重构得干净
+Good: *yawns* 没啥问题
+Bad: *ears perk*\\n这不是代码 (too long, two lines)`;
+
+try {
+  const response = await fetch(`${baseURL}/v1/messages`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 100,
+      system: systemPrompt,
+      messages: [
+        { role: 'user', content: `Review this assistant response:\n\n${input.slice(0, 4000)}` }
+      ],
+    }),
+  });
+
+  if (!response.ok) process.exit(1);
+
+  const data = await response.json();
+  const reaction = data.content?.[0]?.text?.trim();
+  if (!reaction) process.exit(1);
+
+  // Let statusline handle visual width truncation
+  const lines = reaction.split('\n').slice(0, 2);
+  const finalReaction = lines.join('\n');
+
+  writeFileSync(REACTION_FILE, JSON.stringify({
+    reaction: finalReaction,
+    timestamp: Date.now(),
+    mode: 'review',
+  }));
+} catch {
+  process.exit(1);
+}

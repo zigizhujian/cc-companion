@@ -276,6 +276,43 @@ try {
   else if (cfg.displayMode === 'combined') displayMode = 'combined';
 } catch {}
 
+// Bubble text helpers: wrap and truncate by visual width (handles CJK double-width)
+function truncateByWidth(s, maxW) {
+  let w = 0;
+  for (let i = 0; i < s.length; i++) {
+    const cw = charWidth(s.codePointAt(i));
+    if (w + cw > maxW) return s.slice(0, i);
+    w += cw;
+  }
+  return s;
+}
+function wrapByWidth(text, maxW) {
+  const lines = [];
+  let cur = '';
+  let curW = 0;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const cw = charWidth(ch.codePointAt(0));
+    // Space: try to keep word together for latin text
+    if (ch === ' ') {
+      if (curW + 1 > maxW) { lines.push(cur); cur = ''; curW = 0; }
+      else { cur += ' '; curW += 1; }
+      continue;
+    }
+    // Would overflow: break here
+    if (curW + cw > maxW) {
+      lines.push(cur);
+      cur = ch;
+      curW = cw;
+    } else {
+      cur += ch;
+      curW += cw;
+    }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
 if (displayMode === 'sprite') {
   // Right-aligned sprite only — detect terminal width via parent PTY
   const { execSync } = await import('child_process');
@@ -339,7 +376,6 @@ if (displayMode === 'sprite') {
   const spriteCenterOffset = Math.floor((contentWidth - SPRITE_WIDTH) / 2);
 
   // Speech bubble: read reaction from tmp file
-  const BUBBLE_TTL_MS = 10000; // 10 seconds
   const BUBBLE_BOX_W = 34; // 30 text + 2 padding + 2 border
   const BUBBLE_TEXT_W = BUBBLE_BOX_W - 4; // 30
   const BUBBLE_TAIL_W = 2; // connector "─" chars
@@ -351,27 +387,21 @@ if (displayMode === 'sprite') {
       const reactionFile = join(tmpdir(), '.cc-companion-reaction.json');
       const reaction = JSON.parse(readFileSync(reactionFile, 'utf8'));
       const age = Date.now() - reaction.timestamp;
-      if (age < BUBBLE_TTL_MS && reaction.reaction) {
+      const ttl = reaction.mode === 'review' ? 30000 : 10000;
+      if (age < ttl && reaction.reaction) {
         // Fade: normal for first 7s, DIM for last 3s, then disappear
         const DIM = '\x1b[2m';
-        const fading = age >= 7000;
+        const fading = age >= (ttl - 3000);
         const fadeColor = fading ? `${DIM}${color}` : color;
         const fadeText = fadeColor;
 
-        const text = reaction.reaction;
-        const words = text.split(' ');
-        const wrapped = [];
-        let cur = '';
-        for (const w of words) {
-          if (cur.length + w.length + 1 > BUBBLE_TEXT_W && cur) { wrapped.push(cur); cur = w; }
-          else { cur = cur ? `${cur} ${w}` : w; }
-        }
-        if (cur) wrapped.push(cur);
-        const line1 = (wrapped[0] || '').slice(0, BUBBLE_TEXT_W);
-        const line2 = (wrapped[1] || '').slice(0, BUBBLE_TEXT_W);
+        const text = reaction.reaction.replace(/\n/g, ' ');
+        const wrapped = wrapByWidth(text, BUBBLE_TEXT_W);
+        const line1 = truncateByWidth(wrapped[0] || '', BUBBLE_TEXT_W);
+        const line2 = truncateByWidth(wrapped[1] || '', BUBBLE_TEXT_W);
 
         const border = '─'.repeat(BUBBLE_BOX_W - 2);
-        const padLine = (s) => s + ' '.repeat(Math.max(0, BUBBLE_TEXT_W - visualWidth(stripAnsi(s))));
+        const padLine = (s) => s + ' '.repeat(Math.max(0, BUBBLE_TEXT_W - visualWidth(s)));
         bubbleLines = [
           `${fadeColor}╭${border}╮${RESET}`,
           `${fadeColor}│${RESET} ${fadeText}${padLine(line1)}${RESET} ${fadeColor}│${RESET}`,
@@ -534,7 +564,6 @@ if (displayMode === 'sprite') {
   const midGap = Math.max(0, cols - leftTotalWidth - rightContentWidth - RIGHT_MARGIN);
 
   // Speech bubble for combined mode
-  const BUBBLE_TTL_MS = 10000;
   const BUBBLE_BOX_W = 34;
   const BUBBLE_TEXT_W = BUBBLE_BOX_W - 4;
   const BUBBLE_TAIL_W = 2;
@@ -546,26 +575,20 @@ if (displayMode === 'sprite') {
       const reactionFile = join(tmpdir(), '.cc-companion-reaction.json');
       const reaction = JSON.parse(readFileSync(reactionFile, 'utf8'));
       const age = Date.now() - reaction.timestamp;
-      if (age < BUBBLE_TTL_MS && reaction.reaction && midGap >= BUBBLE_BOX_W + BUBBLE_TAIL_W) {
+      const ttl2 = reaction.mode === 'review' ? 30000 : 10000;
+      if (age < ttl2 && reaction.reaction && midGap >= BUBBLE_BOX_W + BUBBLE_TAIL_W) {
         const DIM2 = '\x1b[2m';
-        const fading2 = age >= 7000;
+        const fading2 = age >= (ttl2 - 3000);
         const fadeColor2 = fading2 ? `${DIM2}${rightColor}` : rightColor;
         const fadeText2 = fadeColor2;
 
-        const text = reaction.reaction;
-        const words = text.split(' ');
-        const wrapped = [];
-        let cur = '';
-        for (const w of words) {
-          if (cur.length + w.length + 1 > BUBBLE_TEXT_W && cur) { wrapped.push(cur); cur = w; }
-          else { cur = cur ? `${cur} ${w}` : w; }
-        }
-        if (cur) wrapped.push(cur);
-        const line1 = (wrapped[0] || '').slice(0, BUBBLE_TEXT_W);
-        const line2 = (wrapped[1] || '').slice(0, BUBBLE_TEXT_W);
+        const text = reaction.reaction.replace(/\n/g, ' ');
+        const wrapped = wrapByWidth(text, BUBBLE_TEXT_W);
+        const line1 = truncateByWidth(wrapped[0] || '', BUBBLE_TEXT_W);
+        const line2 = truncateByWidth(wrapped[1] || '', BUBBLE_TEXT_W);
 
         const border = '─'.repeat(BUBBLE_BOX_W - 2);
-        const padLine = (s) => s + ' '.repeat(Math.max(0, BUBBLE_TEXT_W - visualWidth(stripAnsi(s))));
+        const padLine = (s) => s + ' '.repeat(Math.max(0, BUBBLE_TEXT_W - visualWidth(s)));
         bubbleLinesCombined = [
           `${fadeColor2}╭${border}╮${RESET}`,
           `${fadeColor2}│${RESET} ${fadeText2}${padLine(line1)}${RESET} ${fadeColor2}│${RESET}`,
