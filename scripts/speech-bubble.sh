@@ -1,14 +1,11 @@
 #!/bin/bash
 # Stop hook: handles both "fun" and "review" speech bubble modes
 # fun: extract <!-- buddy: ... --> from LLM response
-# review: extract tool_use from transcript, debounce, then call review.mjs async
+# review: extract tool_use from transcript, then call review.mjs async
 
 TMPDIR_PATH="${TMPDIR:-/tmp}"
 REACTION_FILE="${TMPDIR_PATH}/.cc-companion-reaction.json"
 CONFIG="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/plugins/cc-companion/config.json"
-DEBOUNCE_FILE="${TMPDIR_PATH}/.cc-companion-review-debounce"
-ACCUMULATE_FILE="${TMPDIR_PATH}/.cc-companion-review-accumulate"
-DEBOUNCE_SECONDS=3
 
 # Read speechBubble mode from config
 MODE=$(CC_CONFIG="$CONFIG" python3 -c "
@@ -118,26 +115,6 @@ print('\n---\n'.join(chunks[:8]))
   # Skip very short content
   [ ${#REVIEW_CONTENT} -lt 20 ] && exit 0
 
-  # Record debounce timestamp
-  date +%s > "$DEBOUNCE_FILE"
-
-  # Write content for this turn
-  echo "$REVIEW_CONTENT" | head -c 4000 > "$ACCUMULATE_FILE"
-
-  # Async: wait debounce period, then check if we're still the latest
-  (
-    sleep "$DEBOUNCE_SECONDS"
-
-    STORED=$(cat "$DEBOUNCE_FILE" 2>/dev/null || echo 0)
-    NOW=$(date +%s)
-    DIFF=$((NOW - STORED))
-    [ "$DIFF" -gt "$((DEBOUNCE_SECONDS + 1))" ] && exit 0
-
-    ACCUMULATED=$(cat "$ACCUMULATE_FILE" 2>/dev/null)
-    [ -z "$ACCUMULATED" ] && exit 0
-
-    echo "$ACCUMULATED" | "$HOME/.bun/bin/bun" "${PLUGIN_DIR}scripts/review.mjs"
-
-    rm -f "$ACCUMULATE_FILE"
-  ) &
+  # Async: send to review.mjs
+  (echo "$REVIEW_CONTENT" | head -c 4000 | "$HOME/.bun/bin/bun" "${PLUGIN_DIR}scripts/review.mjs") &
 fi
