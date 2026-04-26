@@ -70,7 +70,25 @@ Replace `<MODE>` with `false`, `"fun"`, or `"review"`.
 Tell user the statusline will update automatically.
 
 **If remove:**
-Remove the `statusLine` field from settings.json entirely. Tell user to restart CC.
+Remove `statusLine` and all cc-companion hooks from settings.json:
+```bash
+python3 -c "
+import json, os
+p = os.path.expanduser('~/.claude/settings.json')
+s = json.load(open(p))
+s.pop('statusLine', None)
+for hook_event in ['Stop', 'UserPromptSubmit']:
+    if hook_event in s.get('hooks', {}):
+        s['hooks'][hook_event] = [h for h in s['hooks'][hook_event] if 'cc-companion' not in json.dumps(h)]
+        if not s['hooks'][hook_event]:
+            del s['hooks'][hook_event]
+if not s.get('hooks'):
+    s.pop('hooks', None)
+json.dump(s, open(p, 'w'), indent=2)
+print('Done!')
+"
+```
+Tell user to restart CC.
 
 **If nothing:** do nothing.
 
