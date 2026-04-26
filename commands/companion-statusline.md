@@ -103,27 +103,23 @@ print('Done!')
 "
 ```
 
-3. Install statusline and hooks (detects bun path and writes settings.json automatically):
+3. Install statusline and hooks (writes settings.json automatically):
 ```bash
-BUN_PATH=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
-python3 - "$BUN_PATH" << 'PYEOF'
+python3 << 'PYEOF'
 import json, os, sys
-bun = sys.argv[1]
 p = os.path.expanduser('~/.claude/settings.json')
 try: s = json.load(open(p))
 except: s = {}
-awk = r'{ print $(NF-1) "\t" $' + '0 }'
-plugin_dir_cmd = r"$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '" + r"'\\''{ " + awk + r" }'\\''" + r" | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-)"
-cmd = f"bash -c 'PLUGIN_DIR={plugin_dir_cmd}; exec \"{bun}\" \"${{PLUGIN_DIR}}scripts/statusline.mjs\"'"
+config_dir = os.path.expanduser('~/.claude/plugins/cc-companion')
+cmd = f'bash "{config_dir}/run-statusline.sh"'
 s['statusLine'] = {'type': 'command', 'command': cmd, 'refreshInterval': 1}
 # Copy hook wrappers to config dir (version-independent fixed path)
 import shutil, subprocess
-config_dir = os.path.expanduser('~/.claude/plugins/cc-companion')
 os.makedirs(config_dir, exist_ok=True)
 # Find latest plugin dir to copy wrappers from
 plugin_dir = subprocess.run(['bash', '-c', r"""ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '{ print $(NF-1) "\t" $0 }' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-"""], capture_output=True, text=True).stdout.strip()
 if plugin_dir:
-    for f in ['stop-hook.sh', 'prompt-hook.sh']:
+    for f in ['stop-hook.sh', 'prompt-hook.sh', 'run-statusline.sh']:
         src = os.path.join(plugin_dir, 'scripts', f)
         if os.path.exists(src):
             shutil.copy2(src, os.path.join(config_dir, f))
