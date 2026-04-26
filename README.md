@@ -62,7 +62,7 @@ Once you have a pet you like, save it to your collection with `/cc-companion:com
 
 ---
 
-## Display Modes
+## Statusline Display Modes
 
 Run `/cc-companion:companion-statusline` to enable the statusline. Then set `displayMode` in `~/.claude/plugins/cc-companion/config.json`.
 
@@ -115,11 +115,7 @@ Your companion independently reviews every code change you make. After each turn
 
 The LLM writes a `<!-- buddy: reaction -->` comment at the end of each response. The Stop hook extracts it and displays it as a speech bubble. Costs a few extra tokens per turn. Bubble shows for 10 seconds.
 
-### Shared features
-
-- Works in `sprite` and `combined` modes
-- Bubble language follows the user's language
-- CJK-aware text wrapping with proper punctuation handling
+Both modes work in `sprite` and `combined` modes. Bubble language follows the user's language. CJK-aware text wrapping with proper punctuation handling.
 
 ![sprite — bubble](assets/sprite%20bubble.png)
 ![combined — bubble](assets/combined%20bubble.png)
