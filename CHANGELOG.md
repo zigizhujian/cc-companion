@@ -1,5 +1,24 @@
 # Changelog
 
+## 7.1.0
+
+- Speech bubble severity colors: `[CRIT]` = red (injection, XSS, security), `[WARN]` = yellow (minor issues), no tag = default color
+- Reviewer detects severity from code changes and tags reaction accordingly
+
+## 7.0.0
+
+- Review mode: independent API call reviews assistant's code changes after each turn
+- Stop hook reads `transcript_path` to extract actual Edit diffs, Write content, Bash commands
+- Reviewer runs as a separate Claude instance (no shared history with main conversation)
+- `speechBubble` is now three-state: `false` / `"fun"` / `"review"`
+- Fun mode TTL 10s, review mode TTL 30s
+- Custom API config: `reviewBaseURL`, `reviewApiKey`, `reviewModel`
+- CJK-aware text wrapping: CJK chars break anywhere, Latin breaks at word boundaries
+- Forbidden-start punctuation (。，！？etc) never appears at line start
+- Word-boundary backtrack for English prevents mid-word line breaks
+- `run-statusline.sh` wrapper — statusLine.command no longer contains inline awk
+- Remove statusline now also cleans up cc-companion hooks from settings.json
+
 ## 6.0.0
 
 - Speech bubble: companion reacts to each conversation turn with a short comment
