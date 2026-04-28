@@ -18,6 +18,7 @@ let reviewBaseURL = '';
 let reviewApiKey = '';
 let reviewModel = '';
 let reviewAPIFormat = '';
+let reviewNoReasoning = false;
 try {
   const cfg = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
   petName = cfg.petName || 'companion';
@@ -25,6 +26,7 @@ try {
   if (cfg.reviewApiKey) reviewApiKey = cfg.reviewApiKey;
   if (cfg.reviewModel) reviewModel = cfg.reviewModel;
   if (cfg.reviewAPIFormat) reviewAPIFormat = cfg.reviewAPIFormat;
+  if (cfg.reviewNoReasoning) reviewNoReasoning = true;
 } catch {}
 
 // Default: read from CC settings.json (proxy)
@@ -76,7 +78,8 @@ try {
       },
       body: JSON.stringify({
         model,
-        max_completion_tokens: 500,
+        max_completion_tokens: 100,
+        ...(reviewNoReasoning ? { reasoning_effort: 'none' } : {}),
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
