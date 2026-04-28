@@ -113,7 +113,7 @@ print('\n---\n'.join(chunks[:8]))
 
   [ -z "$REVIEW_CONTENT" ] && exit 0
   # Skip very short content
-  [ ${#REVIEW_CONTENT} -lt 20 ] && exit 0
+  [ "${#REVIEW_CONTENT}" -lt 10 ] && exit 0
 
   # Async: send to review.mjs
   (echo "$REVIEW_CONTENT" | head -c 4000 | "$HOME/.bun/bin/bun" "${PLUGIN_DIR}scripts/review.mjs") &
