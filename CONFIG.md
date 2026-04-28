@@ -18,7 +18,7 @@ Config file: `~/.claude/plugins/cc-companion/config.json`
 | `reviewApiKey` | string | (none) | Custom API key for review mode. Falls back to CC proxy (`ANTHROPIC_AUTH_TOKEN` in settings.json). Required when using direct API (non-proxy) |
 | `reviewModel` | string | (none) | Custom model for review mode. Falls back to `ANTHROPIC_DEFAULT_HAIKU_MODEL` or `anthropic--claude-haiku-latest`. Examples: `anthropic--claude-sonnet-latest`, `gpt-4.1-mini`, `gemini-2.5-flash` |
 | `reviewAPIFormat` | string | `"anthropic"` | API format for review mode. `"anthropic"` = Anthropic messages API. `"openai"` / `"litellm"` = OpenAI chat completions API. `"gemini"` = Google Gemini generateContent API |
-| `reviewNoReasoning` | boolean | `false` | Disable reasoning for OpenAI reasoning models (GPT-5, GPT-5 Mini). When `true`, sends `reasoning_effort: "none"` so the model skips internal thinking and responds instantly. Without this, reasoning models spend 30-40 seconds thinking and often exceed the bubble TTL. Only use with reasoning models — non-reasoning models (GPT-4.1, Anthropic, Gemini) will reject the request if set to `true` |
+| `reviewNoReasoning` | boolean | `false` | Disable reasoning for OpenAI reasoning models (GPT-5, GPT-5 Mini). When `true`, sends `reasoning_effort: "none"` so the model skips internal thinking and responds instantly. Without this, reasoning models spend 30-40 seconds thinking and often exceed the bubble TTL. Only use with reasoning models — some non-reasoning models (e.g. GPT-4.1) will reject the request if set to `true` |
 | `collection` | array | `[]` | Saved favorite pets. Each entry: `{ "name", "salt", "species", "rarity" }`. Managed via `/companion:collection` |
 
 ## Settings.json (CC statusline)
