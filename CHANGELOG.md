@@ -1,5 +1,12 @@
 # Changelog
 
+## 7.2.0
+
+- Multi-provider review: support Anthropic, OpenAI, LiteLLM, and Gemini API formats
+- New config field `reviewAPIFormat`: `"anthropic"` (default), `"openai"`, `"litellm"`, `"gemini"`
+- OpenAI/LiteLLM uses `max_completion_tokens` (required for reasoning models)
+- Tested with Claude Sonnet, GPT-4.1 Mini, Gemini 2.5 Flash
+
 ## 7.1.0
 
 - Speech bubble severity colors: `[CRIT]` = red (injection, XSS, security), `[WARN]` = yellow (minor issues), no tag = default color

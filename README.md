@@ -107,8 +107,10 @@ Your companion independently reviews every code change you make. After each turn
 
 - **Zero extra tokens** in the main conversation — review runs as an independent API call
 - **Sees actual code**, not just the chat text — reads `transcript_path` for Edit/Write/Bash content
-- **Default model: Haiku**, configurable via `reviewModel` (e.g. `"anthropic--claude-sonnet-latest"`)
-- **Custom API**: set `reviewBaseURL`, `reviewApiKey`, `reviewModel` in config
+- **Default model: Haiku**, configurable via `reviewModel` (e.g. `"anthropic--claude-sonnet-latest"`, `"gpt-4.1-mini"`, `"gemini-2.5-flash"`)
+- **Multi-provider**: supports Anthropic, OpenAI, LiteLLM, and Gemini APIs via `reviewAPIFormat`
+- **Severity colors**: critical issues (injection, XSS) in red, warnings in yellow, normal in pet color
+- **Custom API**: set `reviewBaseURL`, `reviewApiKey`, `reviewModel`, `reviewAPIFormat` in config
 - Bubble shows for 30 seconds with fade-out
 
 ### `"fun"` — LLM self-reaction
@@ -207,7 +209,7 @@ Config: `~/.claude/plugins/cc-companion/config.json`
 
 ---
 
-[![Version](https://img.shields.io/badge/version-7.0.0-6366f1?style=flat-square)](https://github.com/zigizhujian/cc-companion)
+[![Version](https://img.shields.io/badge/version-7.2.0-6366f1?style=flat-square)](https://github.com/zigizhujian/cc-companion)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-v2.1.80%2B-8b5cf6?style=flat-square)](https://claude.ai/code)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-blue?style=flat-square)](#installation)
 [![Plugin](https://img.shields.io/badge/type-CC%20Plugin-ec4899?style=flat-square)](#why-a-plugin-not-mcp)

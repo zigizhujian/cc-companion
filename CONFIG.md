@@ -14,9 +14,10 @@ Config file: `~/.claude/plugins/cc-companion/config.json`
 | `screensaverMode` | string | `"random"` | Screensaver pet source. `"random"` = random pets. `"collection"` = cycle through saved collection |
 | `screensaverInterval` | number | `5` | Minutes between pet changes in screensaver mode. `0` = change on every statusline refresh |
 | `speechBubble` | string\|boolean | `false` | Speech bubble mode. `false` = off. `"fun"` = LLM writes `<!-- buddy: ... -->` in response (costs extra tokens). `"review"` = independent API call reviews assistant's code changes (no extra tokens in main conversation). `true` = same as `"fun"` (backwards compat) |
-| `reviewBaseURL` | string | (none) | Custom API base URL for review mode. Falls back to CC proxy (`ANTHROPIC_BASE_URL` in settings.json) |
-| `reviewApiKey` | string | (none) | Custom API key for review mode. Falls back to CC proxy (`ANTHROPIC_AUTH_TOKEN` in settings.json) |
-| `reviewModel` | string | (none) | Custom model for review mode. Falls back to `ANTHROPIC_DEFAULT_HAIKU_MODEL` or `anthropic--claude-haiku-latest` |
+| `reviewBaseURL` | string | (none) | Custom API base URL for review mode. Falls back to CC proxy (`ANTHROPIC_BASE_URL` in settings.json). Examples: `http://localhost:6655/anthropic` (Anthropic proxy), `http://localhost:6655/openai/v1` (OpenAI proxy), `http://localhost:6655/litellm/v1` (LiteLLM proxy), `http://localhost:6655/gemini` (Gemini proxy), `https://api.anthropic.com` (Anthropic direct), `https://api.openai.com/v1` (OpenAI direct) |
+| `reviewApiKey` | string | (none) | Custom API key for review mode. Falls back to CC proxy (`ANTHROPIC_AUTH_TOKEN` in settings.json). Required when using direct API (non-proxy) |
+| `reviewModel` | string | (none) | Custom model for review mode. Falls back to `ANTHROPIC_DEFAULT_HAIKU_MODEL` or `anthropic--claude-haiku-latest`. Examples: `anthropic--claude-sonnet-latest`, `gpt-4.1-mini`, `gemini-2.5-flash` |
+| `reviewAPIFormat` | string | `"anthropic"` | API format for review mode. `"anthropic"` = Anthropic messages API. `"openai"` / `"litellm"` = OpenAI chat completions API. `"gemini"` = Google Gemini generateContent API |
 | `collection` | array | `[]` | Saved favorite pets. Each entry: `{ "name", "salt", "species", "rarity" }`. Managed via `/companion:collection` |
 
 ## Settings.json (CC statusline)
@@ -37,9 +38,10 @@ These go in `~/.claude/settings.json` under `statusLine`:
   "animationMode": "classic",
   "screensaver": false,
   "speechBubble": "review",
+  "reviewAPIFormat": "anthropic",
+  "reviewModel": "anthropic--claude-sonnet-latest",
   "collection": [
-    { "name": "Legendary Shiny Crown Dragon", "salt": "jt3uEVrdkX97CRK", "species": "dragon", "rarity": "legendary" },
-    { "name": "Legendary Shiny Tinyduck Capybara", "salt": "wLt7wpVaXCIRr8I", "species": "capybara", "rarity": "legendary" }
+    { "name": "Legendary Shiny Crown Dragon", "salt": "jt3uEVrdkX97CRK", "species": "dragon", "rarity": "legendary" }
   ]
 }
 ```
@@ -55,4 +57,5 @@ These go in `~/.claude/settings.json` under `statusLine`:
 - Fun mode also uses UserPromptSubmit hook to inject instructions
 - Review mode reads `transcript_path` from Stop hook to extract tool_use content (Edit diffs, Write, Bash)
 - Fun mode bubble TTL 10 seconds, review mode TTL 30 seconds. DIM fade in last 3 seconds
-- CJK text wraps at any character boundary; CJK punctuation (。，！？etc) never starts a new line
+- Review mode supports multiple API formats: Anthropic (default), OpenAI, LiteLLM, Gemini
+- Severity colors: `[CRIT]` = red border+text, `[WARN]` = yellow, no tag = pet rarity color
