@@ -70,7 +70,7 @@ try {
       max_tokens: 100,
       system: systemPrompt,
       messages: [
-        { role: 'user', content: `Review this assistant response:\n\n${input.slice(0, 4000)}` }
+        { role: 'user', content: `Review this assistant response. For [Edit] blocks, "--- old" is deleted code (already fixed/replaced), "+++ new" is the current code — only review the +++ new part:\n\n${input.slice(0, 4000)}` }
       ],
     }),
   });
