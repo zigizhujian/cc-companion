@@ -1,5 +1,14 @@
 # Changelog
 
+## 7.2.1
+
+- `reviewNoReasoning` config: disable reasoning for OpenAI reasoning models (GPT-5, GPT-5 Mini)
+- Severity tag normalization: `[CRIT]`/`[WARN]` moved to front regardless of position in response
+- Review prompt clarifies diff format: only review `+++ new` code, ignore `--- old`
+- Lower review content threshold from 20 to 10 characters
+- `run-statusline.sh` wrapper: statusLine.command no longer contains inline awk escapes
+- Remove statusline now also cleans up cc-companion hooks from settings.json
+
 ## 7.2.0
 
 - Multi-provider review: support Anthropic, OpenAI, LiteLLM, and Gemini API formats
