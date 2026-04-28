@@ -113,6 +113,9 @@ Your companion independently reviews every code change you make. After each turn
 - **Custom API**: set `reviewBaseURL`, `reviewApiKey`, `reviewModel`, `reviewAPIFormat` in config
 - Bubble shows for 30 seconds with fade-out
 
+![review — critical](assets/review%20critical.png)
+![review — warning](assets/review%20warning.png)
+
 ### `"fun"` — LLM self-reaction
 
 The LLM writes a `<!-- buddy: reaction -->` comment at the end of each response. The Stop hook extracts it and displays it as a speech bubble. Costs a few extra tokens per turn. Bubble shows for 10 seconds.
