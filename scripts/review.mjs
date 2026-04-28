@@ -76,7 +76,8 @@ try {
       },
       body: JSON.stringify({
         model,
-        max_completion_tokens: 200,
+        max_completion_tokens: 500,
+        reasoning_effort: 'low',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMessage },
