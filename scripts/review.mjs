@@ -81,12 +81,18 @@ try {
   const reaction = data.content?.[0]?.text?.trim();
   if (!reaction) process.exit(1);
 
-  // Let statusline handle visual width truncation
-  const lines = reaction.split('\n').slice(0, 2);
-  const finalReaction = lines.join('\n');
+  // Normalize: extract severity tag wherever it appears and move to front
+  let normalized = reaction.replace(/\n/g, ' ').trim();
+  const critMatch = normalized.match(/\[CRIT\]/i);
+  const warnMatch = normalized.match(/\[WARN\]/i);
+  if (critMatch) {
+    normalized = '[CRIT] ' + normalized.replace(/\[CRIT\]/i, '').trim();
+  } else if (warnMatch) {
+    normalized = '[WARN] ' + normalized.replace(/\[WARN\]/i, '').trim();
+  }
 
   writeFileSync(REACTION_FILE, JSON.stringify({
-    reaction: finalReaction,
+    reaction: normalized,
     timestamp: Date.now(),
     mode: 'review',
   }));
