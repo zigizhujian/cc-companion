@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 
-// Review mode: call Claude API independently to review the assistant's response.
+// Review mode: call LLM API independently to review the assistant's response.
+// Supports Anthropic, OpenAI, LiteLLM, and Gemini API formats.
 // Reads proxy config from ~/.claude/settings.json, pet config from cc-companion config.
 
 import { readFileSync, writeFileSync } from 'fs';
@@ -16,18 +17,21 @@ let petName = 'companion';
 let reviewBaseURL = '';
 let reviewApiKey = '';
 let reviewModel = '';
+let reviewAPIFormat = '';
 try {
   const cfg = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
   petName = cfg.petName || 'companion';
   if (cfg.reviewBaseURL) reviewBaseURL = cfg.reviewBaseURL.replace(/\/$/, '');
   if (cfg.reviewApiKey) reviewApiKey = cfg.reviewApiKey;
   if (cfg.reviewModel) reviewModel = cfg.reviewModel;
+  if (cfg.reviewAPIFormat) reviewAPIFormat = cfg.reviewAPIFormat;
 } catch {}
 
 // Default: read from CC settings.json (proxy)
 let baseURL = reviewBaseURL || 'https://api.anthropic.com';
 let apiKey = reviewApiKey || '';
 let model = reviewModel || 'anthropic--claude-haiku-latest';
+let apiFormat = reviewAPIFormat || 'anthropic';
 if (!reviewBaseURL || !reviewApiKey) {
   try {
     const settings = JSON.parse(readFileSync(SETTINGS_PATH, 'utf8'));
@@ -57,28 +61,72 @@ Good: *nods* 重构得干净
 Good: *yawns* 没啥问题
 Bad: *ears perk*\\n这不是代码 (too long, two lines)`;
 
+const userMessage = `Review this assistant response. For [Edit] blocks, "--- old" is deleted code (already fixed/replaced), "+++ new" is the current code — only review the +++ new part:\n\n${input.slice(0, 4000)}`;
+
 try {
-  const response = await fetch(`${baseURL}/v1/messages`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 100,
-      system: systemPrompt,
-      messages: [
-        { role: 'user', content: `Review this assistant response. For [Edit] blocks, "--- old" is deleted code (already fixed/replaced), "+++ new" is the current code — only review the +++ new part:\n\n${input.slice(0, 4000)}` }
-      ],
-    }),
-  });
+  let response;
+  let reaction;
 
-  if (!response.ok) process.exit(1);
+  if (apiFormat === 'openai' || apiFormat === 'litellm') {
+    response = await fetch(`${baseURL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        max_completion_tokens: 200,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage },
+        ],
+      }),
+    });
+    if (!response.ok) process.exit(1);
+    const data = await response.json();
+    reaction = data.choices?.[0]?.message?.content?.trim();
 
-  const data = await response.json();
-  const reaction = data.content?.[0]?.text?.trim();
+  } else if (apiFormat === 'gemini') {
+    response = await fetch(`${baseURL}/v1beta/models/${model}:generateContent`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
+      },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+        generationConfig: { maxOutputTokens: 100 },
+      }),
+    });
+    if (!response.ok) process.exit(1);
+    const data = await response.json();
+    reaction = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+  } else {
+    // Default: Anthropic
+    response = await fetch(`${baseURL}/v1/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 100,
+        system: systemPrompt,
+        messages: [
+          { role: 'user', content: userMessage },
+        ],
+      }),
+    });
+    if (!response.ok) process.exit(1);
+    const data = await response.json();
+    reaction = data.content?.[0]?.text?.trim();
+  }
+
   if (!reaction) process.exit(1);
 
   // Normalize: extract severity tag wherever it appears and move to front
