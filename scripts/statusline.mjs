@@ -411,13 +411,24 @@ if (displayMode === 'sprite') {
       const age = Date.now() - reaction.timestamp;
       const ttl = reaction.mode === 'review' ? 30000 : 10000;
       if (age < ttl && reaction.reaction) {
-        // Fade: normal for first 7s, DIM for last 3s, then disappear
         const DIM = '\x1b[2m';
+        const RED = '\x1b[31m';
+        const YELLOW = '\x1b[33m';
         const fading = age >= (ttl - 3000);
-        const fadeColor = fading ? `${DIM}${color}` : color;
+
+        let rawText = reaction.reaction.replace(/\n/g, ' ');
+        let bubbleColor = color;
+        if (rawText.startsWith('[CRIT]')) {
+          rawText = rawText.slice(6).trimStart();
+          bubbleColor = RED;
+        } else if (rawText.startsWith('[WARN]')) {
+          rawText = rawText.slice(6).trimStart();
+          bubbleColor = YELLOW;
+        }
+        const fadeColor = fading ? `${DIM}${bubbleColor}` : bubbleColor;
         const fadeText = fadeColor;
 
-        const text = reaction.reaction.replace(/\n/g, ' ');
+        const text = rawText;
         const wrapped = wrapByWidth(text, BUBBLE_TEXT_W);
         const line1 = truncateByWidth(wrapped[0] || '', BUBBLE_TEXT_W);
         const line2 = truncateByWidth(wrapped[1] || '', BUBBLE_TEXT_W);
@@ -600,11 +611,23 @@ if (displayMode === 'sprite') {
       const ttl2 = reaction.mode === 'review' ? 30000 : 10000;
       if (age < ttl2 && reaction.reaction && midGap >= BUBBLE_BOX_W + BUBBLE_TAIL_W) {
         const DIM2 = '\x1b[2m';
+        const RED2 = '\x1b[31m';
+        const YELLOW2 = '\x1b[33m';
         const fading2 = age >= (ttl2 - 3000);
-        const fadeColor2 = fading2 ? `${DIM2}${rightColor}` : rightColor;
+
+        let rawText2 = reaction.reaction.replace(/\n/g, ' ');
+        let bubbleColor2 = rightColor;
+        if (rawText2.startsWith('[CRIT]')) {
+          rawText2 = rawText2.slice(6).trimStart();
+          bubbleColor2 = RED2;
+        } else if (rawText2.startsWith('[WARN]')) {
+          rawText2 = rawText2.slice(6).trimStart();
+          bubbleColor2 = YELLOW2;
+        }
+        const fadeColor2 = fading2 ? `${DIM2}${bubbleColor2}` : bubbleColor2;
         const fadeText2 = fadeColor2;
 
-        const text = reaction.reaction.replace(/\n/g, ' ');
+        const text = rawText2;
         const wrapped = wrapByWidth(text, BUBBLE_TEXT_W);
         const line1 = truncateByWidth(wrapped[0] || '', BUBBLE_TEXT_W);
         const line2 = truncateByWidth(wrapped[1] || '', BUBBLE_TEXT_W);
