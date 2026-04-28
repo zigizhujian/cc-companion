@@ -113,8 +113,13 @@ Your companion independently reviews every code change you make. After each turn
 - **Custom API**: set `reviewBaseURL`, `reviewApiKey`, `reviewModel`, `reviewAPIFormat` in config
 - Bubble shows for 30 seconds with fade-out
 
+The reviewer flags severity automatically: `[CRIT]` for serious security issues (SQL injection, XSS, data loss) shows a **red** bubble, `[WARN]` for minor issues (missing error handling, unsafe patterns) shows a **yellow** bubble, and neutral reactions use the pet's rarity color.
+
 ![review — critical](assets/review%20critical.png)
+*Critical: SQL injection flagged in red*
+
 ![review — warning](assets/review%20warning.png)
+*Warning: missing error handling flagged in yellow*
 
 ### `"fun"` — LLM self-reaction
 
