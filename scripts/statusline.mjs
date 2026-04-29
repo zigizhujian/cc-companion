@@ -414,6 +414,7 @@ if (displayMode === 'sprite') {
         const DIM = '\x1b[2m';
         const RED = '\x1b[31m';
         const YELLOW = '\x1b[33m';
+        const ORANGE = '\x1b[38;5;208m';
         const fading = age >= (ttl - 3000);
 
         let rawText = reaction.reaction.replace(/\n/g, ' ');
@@ -423,7 +424,7 @@ if (displayMode === 'sprite') {
           bubbleColor = RED;
         } else if (rawText.startsWith('[WARN]')) {
           rawText = rawText.slice(6).trimStart();
-          bubbleColor = YELLOW;
+          bubbleColor = color === RARITY_ANSI.legendary ? ORANGE : YELLOW;
         }
         const fadeColor = fading ? `${DIM}${bubbleColor}` : bubbleColor;
         const fadeText = fadeColor;
@@ -613,6 +614,7 @@ if (displayMode === 'sprite') {
         const DIM2 = '\x1b[2m';
         const RED2 = '\x1b[31m';
         const YELLOW2 = '\x1b[33m';
+        const ORANGE2 = '\x1b[38;5;208m';
         const fading2 = age >= (ttl2 - 3000);
 
         let rawText2 = reaction.reaction.replace(/\n/g, ' ');
@@ -622,7 +624,7 @@ if (displayMode === 'sprite') {
           bubbleColor2 = RED2;
         } else if (rawText2.startsWith('[WARN]')) {
           rawText2 = rawText2.slice(6).trimStart();
-          bubbleColor2 = YELLOW2;
+          bubbleColor2 = rightColor === RARITY_ANSI.legendary ? ORANGE2 : YELLOW2;
         }
         const fadeColor2 = fading2 ? `${DIM2}${bubbleColor2}` : bubbleColor2;
         const fadeText2 = fadeColor2;
