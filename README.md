@@ -121,6 +121,22 @@ The reviewer flags severity automatically: `[CRIT]` for serious security issues 
 ![review — warning](assets/review%20warning.png)
 *Warning: missing error handling flagged in yellow*
 
+### Tested models
+
+| Model | Speed | Quality | Rating |
+|-------|-------|---------|--------|
+| Sonnet | 2-3s | Most accurate, insightful | ★★★★★ |
+| GPT-5 (no reasoning) | 3-4s | Accurate, opinionated | ★★★★☆ |
+| GPT-5 Mini (no reasoning) | 2-3s | Good | ★★★★ |
+| Haiku | 1-2s | Adequate, occasional false positives | ★★★☆ |
+| GPT-4.1 Mini | 2-3s | Normal, unremarkable | ★★★☆ |
+| Gemini 2.5 Flash | 3-5s | Usable | ★★★ |
+| Gemini 2.5 Pro | 8-10s | Usable, too slow | ★★☆ |
+| Gemini 2.5 Flash Lite | 2-3s | Weak, frequent misjudgments | ★★ |
+| GPT-5/Mini (with reasoning) | 30-40s | Exceeds bubble TTL | ★ |
+
+> Set `reviewNoReasoning: true` for GPT-5 series to disable reasoning (required for usable speed).
+
 ### `"fun"` — LLM self-reaction
 
 The LLM writes a `<!-- buddy: reaction -->` comment at the end of each response. The Stop hook extracts it and displays it as a speech bubble. Costs a few extra tokens per turn. Bubble shows for 10 seconds.
