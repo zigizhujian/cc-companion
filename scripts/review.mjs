@@ -63,7 +63,7 @@ Good: *nods* 重构得干净
 Good: *yawns* 没啥问题
 Bad: *ears perk*\\n这不是代码 (too long, two lines)`;
 
-const userMessage = `Review this assistant response. For [Edit] blocks, "--- old" is deleted code (already fixed/replaced), "+++ new" is the current code — only review the +++ new part:\n\n${input.slice(0, 4000)}`;
+const userMessage = `Review the assistant's recent actions (up to 3 turns shown, oldest first). For [Edit] blocks, "--- old" is deleted code (already fixed/replaced), "+++ new" is the current code — only review the +++ new part. Focus on the [Current Turn]:\n\n${input.slice(0, 4000)}`;
 
 try {
   let response;

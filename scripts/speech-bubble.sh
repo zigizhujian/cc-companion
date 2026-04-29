@@ -44,7 +44,7 @@ elif [ "$MODE" = "review" ]; then
   PLUGIN_DIR=$(ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/cc-companion/cc-companion/*/ 2>/dev/null | awk -F/ '{ print $(NF-1) "\t" $0 }' | sort -t. -k1,1n -k2,2n -k3,3n | tail -1 | cut -f2-)
   [ -z "$PLUGIN_DIR" ] && exit 0
 
-  # Extract all assistant content from current turn (since last user message)
+  # Extract assistant content from last 3 turns (current + 2 previous)
   REVIEW_CONTENT=$(CC_TRANSCRIPT="$TRANSCRIPT" python3 -c "
 import json, sys, os
 
@@ -52,25 +52,9 @@ transcript = os.environ.get('CC_TRANSCRIPT', '')
 if not transcript:
     sys.exit(1)
 
-chunks = []
-try:
-    with open(transcript) as f:
-        lines = f.readlines()
-
-    # Find last real user message (not tool_result)
-    last_user = -1
-    for i in range(len(lines) - 1, -1, -1):
-        d = json.loads(lines[i].strip())
-        if d.get('type') != 'user':
-            continue
-        content = d.get('message', {}).get('content', [])
-        if isinstance(content, list) and any(c.get('type') == 'tool_result' for c in content if isinstance(c, dict)):
-            continue
-        last_user = i
-        break
-
-    start = last_user + 1 if last_user >= 0 else max(0, len(lines) - 100)
-    for line in lines[start:]:
+def extract_turn(lines, start, end):
+    chunks = []
+    for line in lines[start:end]:
         d = json.loads(line.strip())
         if d.get('type') != 'assistant':
             continue
@@ -85,9 +69,9 @@ try:
                 inp = c.get('input', {})
                 if name == 'Edit':
                     fp = inp.get('file_path', '').rsplit('/', 1)[-1]
-                    os = inp.get('old_string', '')[:800]
+                    os_ = inp.get('old_string', '')[:800]
                     ns = inp.get('new_string', '')[:800]
-                    chunks.append('[Edit ' + fp + ']\n--- old\n' + os + '\n+++ new\n' + ns)
+                    chunks.append('[Edit ' + fp + ']\n--- old\n' + os_ + '\n+++ new\n' + ns)
                 elif name == 'Write':
                     fp = inp.get('file_path', '').rsplit('/', 1)[-1]
                     ct = inp.get('content', '')[:1500]
@@ -97,13 +81,46 @@ try:
                     chunks.append('[Bash]\n' + cmd)
             elif c.get('type') == 'text' and c.get('text', '').strip():
                 chunks.append(c['text'].strip()[:500])
+    return chunks
+
+try:
+    with open(transcript) as f:
+        lines = f.readlines()
+
+    # Find last 3 real user message boundaries
+    boundaries = []
+    for i in range(len(lines) - 1, -1, -1):
+        d = json.loads(lines[i].strip())
+        if d.get('type') != 'user':
+            continue
+        content = d.get('message', {}).get('content', [])
+        if isinstance(content, list) and any(c.get('type') == 'tool_result' for c in content if isinstance(c, dict)):
+            continue
+        boundaries.append(i)
+        if len(boundaries) >= 3:
+            break
+
+    if not boundaries:
+        sys.exit(1)
+
+    # boundaries[0] = current turn start, [1] = previous, [2] = two turns ago
+    turns = []
+    for idx, b in enumerate(boundaries):
+        end = boundaries[idx - 1] if idx > 0 else len(lines)
+        start = b + 1
+        label = ['[Current Turn]', '[Previous Turn]', '[2 Turns Ago]'][idx]
+        chunks = extract_turn(lines, start, end)
+        if chunks:
+            turns.append(label + '\n' + '\n---\n'.join(chunks[:5]))
+
+    if not turns:
+        sys.exit(1)
+
+    # Print oldest first
+    print('\n===\n'.join(reversed(turns)))
+
 except Exception:
-    pass
-
-if not chunks:
     sys.exit(1)
-
-print('\n---\n'.join(chunks[:8]))
 " 2>/dev/null)
 
   # Fall back to last_assistant_message if no tool_use found
