@@ -78,7 +78,7 @@ try {
       },
       body: JSON.stringify({
         model,
-        max_completion_tokens: 100,
+        max_completion_tokens: 500,
         ...(reviewNoReasoning ? { reasoning_effort: 'none' } : {}),
         messages: [
           { role: 'system', content: systemPrompt },
@@ -100,7 +100,7 @@ try {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-        generationConfig: { maxOutputTokens: 100 },
+        generationConfig: { maxOutputTokens: 500 },
       }),
     });
     if (!response.ok) process.exit(1);
@@ -118,7 +118,7 @@ try {
       },
       body: JSON.stringify({
         model,
-        max_tokens: 100,
+        max_tokens: 500,
         system: systemPrompt,
         messages: [
           { role: 'user', content: userMessage },
