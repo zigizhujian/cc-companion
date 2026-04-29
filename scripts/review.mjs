@@ -58,10 +58,10 @@ Rules:
 - Start with a severity tag: [CRIT] for serious issues (injection, XSS, data loss, security), [WARN] for minor issues or suggestions, no tag for neutral/positive reactions.
 
 Good: [CRIT] *squints* SQL injection!
-Good: [WARN] *tilts head* 未处理异常
-Good: *nods* 重构得干净
-Good: *yawns* 没啥问题
-Bad: *ears perk*\\n这不是代码 (too long, two lines)`;
+Good: [WARN] *tilts head* Missing error handling
+Good: *nods* Clean refactor
+Good: *yawns* Looks fine
+Bad: *ears perk*\\nTwo lines (too long, two lines)`;
 
 const userMessage = `Review the assistant's recent actions (up to 3 turns shown, oldest first). For [Edit] blocks, "--- old" is deleted code (already fixed/replaced), "+++ new" is the current code — only review the +++ new part. Focus on the [Current Turn]:\n\n${input.slice(0, 4000)}`;
 
