@@ -1,5 +1,11 @@
 # Changelog
 
+## 7.3.0
+
+- Review now reads last 3 turns from transcript (current + 2 previous) for better context
+- Turns labeled `[Current Turn]` / `[Previous Turn]` / `[2 Turns Ago]`, oldest first
+- Empty turns (no assistant content) are skipped
+
 ## 7.2.1
 
 - `reviewNoReasoning` config: disable reasoning for OpenAI reasoning models (GPT-5, GPT-5 Mini)
