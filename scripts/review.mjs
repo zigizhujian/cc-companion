@@ -4,11 +4,12 @@
 // Supports Anthropic, OpenAI, LiteLLM, and Gemini API formats.
 // Reads proxy config from ~/.claude/settings.json, pet config from cc-companion config.
 
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, appendFileSync } from 'fs';
 import { join } from 'path';
 import { homedir, tmpdir } from 'os';
 
 const REACTION_FILE = join(tmpdir(), '.cc-companion-reaction.json');
+const HISTORY_FILE = join(tmpdir(), '.cc-companion-review-history.jsonl');
 const CONFIG_PATH = join(homedir(), '.claude', 'plugins', 'cc-companion', 'config.json');
 const SETTINGS_PATH = join(homedir(), '.claude', 'settings.json');
 
@@ -147,6 +148,14 @@ try {
     timestamp: Date.now(),
     mode: 'review',
   }));
+
+  // Append to history (keep last 10 entries)
+  const entry = JSON.stringify({ reaction: normalized, timestamp: Date.now(), model }) + '\n';
+  appendFileSync(HISTORY_FILE, entry);
+  try {
+    const lines = readFileSync(HISTORY_FILE, 'utf8').trim().split('\n');
+    if (lines.length > 10) writeFileSync(HISTORY_FILE, lines.slice(-10).join('\n') + '\n');
+  } catch {}
 } catch {
   process.exit(1);
 }
