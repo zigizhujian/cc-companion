@@ -1,5 +1,18 @@
 # Changelog
 
+## 7.4.x
+
+- `companion-review-log` skill: show recent review history (`/cc-companion:companion-review-log`)
+- Review history persisted to `$TMPDIR/.cc-companion-review-history.jsonl` (last 10 entries)
+- WARN bubble uses orange instead of yellow for legendary (gold) pets to avoid color clash
+
+## 7.3.x
+
+- Review reads last 3 turns from transcript for better context (labeled Current/Previous/2 Turns Ago)
+- Fix review language bias: removed CJK examples from prompt, reviewer defaults to English
+- All API output token limits unified to 500 (fixes truncation for reasoning models)
+- README: tested models comparison table
+
 ## 7.3.0
 
 - Review now reads last 3 turns from transcript (current + 2 previous) for better context
