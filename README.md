@@ -43,6 +43,7 @@ No background processes. No idle token overhead. Just a plugin that works.
 | `/cc-companion:companion-pet` | Pet your companion |
 | `/cc-companion:companion-collection` | Save, list, switch, or remove favorite pets |
 | `/cc-companion:companion-screensaver` | Toggle screensaver mode on/off |
+| `/cc-companion:companion-review-log` | Show recent review history (last 10 entries with timestamp, reaction, model) |
 
 ---
 
